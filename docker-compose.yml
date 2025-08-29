@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:15
+    container_name: jobtracker-db
+    environment:
+      POSTGRES_USER: admin       # 可选，默认用户为postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: jobtracker    # 初始数据库名
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # 数据持久化
+    healthcheck:                # 健康检查
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:  # 新增 Redis 服务
+      image: redis:7
+      container_name: jobtracker-redis
+      ports:
+        - "6379:6379"
+      volumes:
+        - redisdata:/data  # Redis 数据持久化
+      healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+      command: redis-server --save 60 1 --loglevel warning  # 可选：60秒内有1次写入则保存
+
+volumes:
+  pgdata:  # 命名卷，数据不会随容器删除而丢失
+  redisdata: # Redis 数据卷

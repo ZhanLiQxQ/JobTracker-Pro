@@ -1,0 +1,29 @@
+# backend/src/main/resources/application.yml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jobtracker
+    username: admin
+    password: password123
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+      connection-test-query: SELECT 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  security:
+    user:
+      name: zhan      # 自定义用户名
+      password: 123 # 自定义密码
+jwt:
+  secret: "thisIsASuperSecureKeyWithMoreThan64Characters1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  expiration: 86400000  # 24小时（毫秒）
+  # Redis 新配置（连接到 Docker Compose 网络中的 Redis 服务）
+  data:
+    redis:
+      host: redis  # 使用服务名而非 localhost
+      port: 6379
