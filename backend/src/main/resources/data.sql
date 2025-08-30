@@ -1,8 +1,31 @@
- -- 插入一些公开的职位数据
-INSERT INTO job (title, company, status, applied_at, description, source, is_public, id)
-VALUES 
-('Java开发工程师', '阿里巴巴', 'APPLIED', NOW(), '负责Java后端开发', 'LinkedIn', true, 1),
-('前端开发工程师', '腾讯', 'APPLIED', NOW(), '负责React/Vue开发', 'Indeed', true, 1),
-('全栈工程师', '字节跳动', 'APPLIED', NOW(), '负责前后端开发', 'Boss直聘', true, 1),
-('Python开发工程师', '百度', 'APPLIED', NOW(), '负责Python后端开发', '拉勾', true, 1),
-('DevOps工程师', '美团', 'APPLIED', NOW(), '负责CI/CD流程', '猎聘', true, 1);
+--  -- 插入一些公开的职位数据
+-- INSERT INTO job (title, company, status, applied_at, description, source)
+-- VALUES
+-- ('Java开发工程师', '阿里巴巴', 'APPLIED', NOW(), '负责Java后端开发', 'LinkedIn'),
+-- ('前端开发工程师', '腾讯', 'APPLIED', NOW(), '负责React/Vue开发', 'Indeed'),
+-- ('全栈工程师', '字节跳动', 'APPLIED', NOW(), '负责前后端开发', 'Boss直聘'),
+-- ('Python开发工程师', '百度', 'APPLIED', NOW(), '负责Python后端开发', '拉勾'),
+-- ('DevOps工程师', '美团', 'APPLIED', NOW(), '负责CI/CD流程', '猎聘');
+--
+--
+--  ALTER TABLE job
+--      DROP COLUMN users_id,
+--      DROP COLUMN is_favorite,
+--      DROP COLUMN location,
+--      DROP COLUMN posted_at,
+--      DROP COLUMN requirements,
+--      DROP COLUMN salary;
+--
+--
+--  DROP TABLE IF EXISTS job;
+--
+--  CREATE TABLE job (
+--                       id BIGSERIAL PRIMARY KEY,
+--                       title VARCHAR(255),
+--                       company VARCHAR(255),
+--                       status VARCHAR(255),
+--                       applied_at TIMESTAMP WITH TIME ZONE,
+--                       description TEXT,
+--                       source VARCHAR(255),
+--                       is_public BOOLEAN
+--  );

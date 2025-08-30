@@ -25,9 +25,9 @@ public class Users {
 
     private String role = "USER";
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Job> job = new ArrayList<>();
+//    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+//    @JsonIgnore
+//    private List<Job> job = new ArrayList<>();
 
     // 新增简历字段，用于AI匹配
     @Column(columnDefinition = "TEXT")

@@ -20,14 +20,12 @@ public class Job {
     private String location;
     private String status; // APPLIED, INTERVIEW, REJECTED
     private String description;
-    private String requirements;
-    private String salary;
+//    private String salary;
     private String source;
-    private LocalDateTime postedAt = LocalDateTime.now();
-    private boolean isFavorite = false;
+//    private LocalDateTime postedAt = LocalDateTime.now();
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id", nullable = false)
-    @JsonIgnore
-    private Users users;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "users_id", nullable = false)
+//    @JsonIgnore
+//    private Users users;
 }

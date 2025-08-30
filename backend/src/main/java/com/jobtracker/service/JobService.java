@@ -16,11 +16,11 @@ public interface JobService {
     List<Job> getUserFavorites(Users user);
     void addToFavorites(Users user, Long jobId, String notes);
     void removeFromFavorites(Users user, Long jobId);
-    List<Job> getAllJobsForUser(Users user);
-    Job createJob(Job job, Users user);
-    Job updateJob(Long id, Job job, Users user);
-    void deleteJob(Long id, Users user);
-    List<Job> searchJobsByTitle(String title, Users user);
-    List<Job> recommendJobs(String query, Users user);
+//    List<Job> getAllJobsForUser(Users user);
+    Job createJob(Job job);
+    Job updateJob(Long id, Job job);
+    void deleteJob(Long id);
+//    List<Job> searchJobsByTitle(String title, Users user);
+    List<Job> recommendJobs(String query);
     void fetchAndStoreJobsFromExternalSources(String query);
 }

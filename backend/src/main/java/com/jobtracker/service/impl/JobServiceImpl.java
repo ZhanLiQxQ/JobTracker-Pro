@@ -68,44 +68,32 @@ public class JobServiceImpl implements JobService {
         userFavoriteRepository.deleteByUserAndJob(user, job);
     }
 
-    @Override
-    public List<Job> getAllJobsForUser(Users user) {
-        return jobRepository.findByUsers(user);
-    }
 
     @Override
-    public Job createJob(Job job, Users user) {
-        job.setUsers(user);
+    public Job createJob(Job job) {
         return jobRepository.save(job);
     }
 
     @Override
-    public Job updateJob(Long id, Job job, Users user) {
+    public Job updateJob(Long id, Job job) {
         Job existingJob = getJobById(id);
-        if (!existingJob.getUsers().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized to update this job");
-        }
         job.setId(id);
-        job.setUsers(user);
         return jobRepository.save(job);
     }
 
     @Override
-    public void deleteJob(Long id, Users user) {
+    public void deleteJob(Long id) {
         Job job = getJobById(id);
-        if (!job.getUsers().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized to delete this job");
-        }
         jobRepository.delete(job);
     }
 
-    @Override
-    public List<Job> searchJobsByTitle(String title, Users user) {
-        return jobRepository.findByTitleContainingIgnoreCaseAndUsers(title, user);
-    }
+//    @Override
+//    public List<Job> searchJobsByTitle(String title, Users user) {
+//        return jobRepository.findByTitleContainingIgnoreCaseAndUsers(title, user);
+//    }
 
     @Override
-    public List<Job> recommendJobs(String query, Users user) {
+    public List<Job> recommendJobs(String query) {
         // TODO: 实现推荐逻辑
         return List.of();
     }

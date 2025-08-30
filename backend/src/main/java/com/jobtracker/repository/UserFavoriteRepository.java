@@ -1,4 +1,5 @@
  package com.jobtracker.repository;
+import com.jobtracker.entity.UserFavorite;
 import com.jobtracker.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
