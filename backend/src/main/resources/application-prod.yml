@@ -1,0 +1,74 @@
+# 生产环境配置
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 生产环境使用validate，不自动创建表
+    show-sql: false  # 生产环境关闭SQL日志
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+
+
+  # 日志配置
+  output:
+    ansi:
+      enabled: never  # 生产环境关闭彩色日志
+
+# 日志级别配置
+logging:
+  level:
+    root: INFO
+    com.jobtracker: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /var/log/jobtracker/application.log
+
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000  # 24小时
+
+# 应用配置
+app:
+  internal-api-key: ${APP_INTERNAL_API_KEY}
+
+# AI服务配置
+ai:
+  service:
+    url: ${AI_SERVICE_URL:http://ai_service:5000}
+
+# WebClient配置
+web:
+  client:
+    base:
+      url: ${WEB_CLIENT_BASE_URL:http://localhost:8000}
+
+# AWS配置
+aws:
+  region: ${AWS_REGION:us-east-1}
+  access-key-id: ${AWS_ACCESS_KEY_ID:}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
+
+# S3配置
+s3:
+  bucket:
+    name: ${S3_BUCKET_NAME}
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true

@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+sentence-transformers
+scikit-learn
+flask
+flask-cors
+PyMuPDF     # For parsing PDF, extremely high performance
+python-docx # For parsing .docx Word documents
+playwright

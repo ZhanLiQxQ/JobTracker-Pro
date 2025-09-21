@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # ===============================================
+  # == 应用程序服务 (来自 docker-compose.prod.yml) ==
+  # ===============================================
+  backend:
+    build:
+      context: ./backend
+    restart: always
+    ports:
+      - "8080:8080"  # 映射后端端口到主机
+    environment:
+      # 所有敏感信息都将从 .env 文件中读取
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis  # Docker环境中使用服务名
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_INTERNAL_API_KEY=${APP_INTERNAL_API_KEY}
+      - AI_SERVICE_URL=http://ai_service:5000  # AI服务URL配置
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+    depends_on:
+      db: # 依赖于下面的数据库服务
+        condition: service_healthy
+      redis: # 依赖于Redis服务
+        condition: service_healthy
+      ai_service: # 依赖于AI服务
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    ports:
+      - "80:80" # 将主机的80端口映射到Nginx的80端口
+    depends_on:
+      - backend
+
+  ai_service:
+    build:
+      context: ./ai_service
+    restart: always
+    ports:
+      - "5000:5000" # 映射AI服务端口用于测试
+    environment:
+      - JAVA_BACKEND_INTAKE_URL=http://backend:8080/api/internal/jobs/batch-intake
+      - JAVA_BACKEND_INTERNAL_JOBS_URL=http://backend:8080/api/internal/jobs
+      - INTERNAL_API_KEY=${APP_INTERNAL_API_KEY}
+
+  # ========================================================
+  # == 依赖服务 (来自 docker-compose.yml, 仅用于本地测试) ==
+  # ========================================================
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: jobtracker
+    ports:
+      - "5432:5432" # localhost:5432->db:5432,映射到本地，本地访问localhost5432就可以查看db5432，方便用数据库工具连接查看。只是为了调试方便，删掉也不影响部署，只是不能通过本地看了
+    volumes:
+      - pgdata_local:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d jobtracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379" # 映射到本地，方便连接查看
+    volumes:
+      - redisdata_local:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: redis-server --save 60 1 --loglevel warning
+
+volumes:
+  pgdata_local:
+  redisdata_local:
