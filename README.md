@@ -55,7 +55,7 @@ An intelligent job management tool with AI-powered job recommendations, automate
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/ZhanLiQxQ/JobTracker-Pro
 cd JobTracker-Pro
 ```
 
