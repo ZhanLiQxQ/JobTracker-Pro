@@ -32,7 +32,7 @@ def save_jobs_batch_to_backend(jobs_data):
     if not jobs_data:
         print("No job data to save")
         return
-    
+
     try:
         headers = {
             'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ def scrape_jobs():
                         "title": title.strip(),
                         "company": company.strip(),
                         "location": location.strip(),
-                        "description": full_description.strip(),  # Use our newly obtained complete description
+                        "description": full_description.strip(),
                         "url": job_detail_url,
                         "source": "We Work Remotely"
                     }
@@ -183,93 +183,3 @@ def scrape_jobs():
 if __name__ == "__main__":
     # Run main function
     scrape_jobs()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-#
-# def scrape_jobs():
-#     """Main scraper function"""
-#     print("Starting scraper task...")
-#
-#     with sync_playwright() as p:
-#         browser = p.chromium.launch(headless=True)  # headless=False 会打开浏览器界面，方便调试，这是一个非常重要的参数，headless 的意思是**“无头模式”**。
-#
-# # True (默认): 浏览器会在后台静默运行，你看不到任何浏览器窗口。这在服务器上运行爬虫时是必须的，因为它效率高、不占用图形界面资源。
-# #
-# # False: 程序会弹出一个真实的、可见的浏览器窗口，并且你会看到你的代码正在一步步地自动化操作它。这在你编写和调试爬虫代码时非常有用，可以直观地看到哪里出了问题。
-#
-#         # 随机选择一个 User-Agent
-#         user_agent = random.choice(USER_AGENTS)
-#         context = browser.new_context(user_agent=user_agent)
-#         page = context.new_page()
-#
-#         try:
-#             page.goto(TARGET_URL, wait_until="networkidle", timeout=60000)
-#             print(f"Page opened: {page.title()}")
-#
-#             # --- 反爬虫策略 1: 随机延迟 ---
-#             time.sleep(random.uniform(3, 7))
-#
-#             # --- 定位职位列表 ---
-#             job_listings = page.query_selector_all(".new-listing-container")
-#             print(f"Found {len(job_listings)} jobs on this page.")
-#
-#             base_url = "https://weworkremotely.com"
-#
-#             for listing in job_listings:
-#                 try:
-#                     # --- 提取信息 ---
-#                     title = listing.query_selector(".new-listing__header__title").inner_text()
-#                     company = listing.query_selector(".new-listing__company-name").inner_text()
-#                     location = listing.query_selector(".new-listing__company-headquarters").inner_text()
-#
-#                     # Find job link element
-#                     link_element = listing.query_selector('a[href*="/remote-jobs/"]')
-#                     job_url_path = link_element.get_attribute("href") if link_element else None
-#
-#                     if not job_url_path:
-#                         print("警告: 未能找到职位链接，跳过此条目。")
-#                         continue
-#
-#                     job_data = {
-#                         "title": title.strip(),
-#                         "company": company.strip(),
-#                         "location": location.strip(),
-#                         "description": "",  # 列表页没有详细描述，可以留空或后续进入详情页抓取
-#                         "url": base_url + job_url_path
-#                     }
-#
-#                     save_job_to_backend(job_data)
-#                     time.sleep(random.uniform(1, 4))
-#
-#                 except Exception as e:
-#                     print(f"Error parsing individual job: {e}")
-#
-#             # 此处可以添加翻页逻辑
-#
-#         except Exception as e:
-#             print(f"Serious error occurred during scraping: {e}")
-#         finally:
-#             browser.close()
-#
-#     print("爬虫任务执行完毕。")
-#
-#
-# # 测试运行
-# if __name__ == "__main__":
-#     scrape_jobs()
-
-
-# ... (import 和常量定义部分保持不变)
