@@ -75,7 +75,7 @@ def scrape_jobs():
 
             base_url = "https://weworkremotely.com"
 
-            for i, listing in enumerate(job_listings[:2], 1):  # Use enumerate to track which job number
+            for i, listing in enumerate(job_listings, 1):  # Use enumerate to track which job number
                 try:
                     print(f"--- Parsing job {i} ---")  # Debug info, convenient for problem location
 

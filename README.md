@@ -13,7 +13,7 @@ An intelligent job management tool with AI-powered job recommendations, automate
 - 📊 **Progress Tracking** - Visualize your application status and statistics
 - 💾 **Favorites Management** - Save interesting jobs for later follow-up
 - 📄 **Resume Upload** - Upload and analyze your resume with AI
-- 🕷️ **Automated Scraping** - Automatically fetch the latest job postings
+- 🕷️ **Automated Scraping** - Job collection with duplicate detection and batch processing
 - 🔐 **User Authentication** - Secure user registration and login system
 
 ## 🛠️ Tech Stack
@@ -37,6 +37,8 @@ An intelligent job management tool with AI-powered job recommendations, automate
 - **Python** - AI recommendation algorithms
 - **Scikit-learn** - Machine learning library
 - **Sentence Transformers** - Text similarity computation
+- **Web Scraping** - Job data collection with duplicate detection
+- **Batch Processing** - Bulk data operations
 
 ### Infrastructure
 - **Docker** - Containerized deployment
@@ -181,9 +183,11 @@ docker-compose up --build
 docker exec -it jobtracker-pro-ai_service-1 python main.py
 ```
 
+**Scraper Features**: Checks existing job URLs in database to prevent duplicates and saves jobs in batches for optimal performance.
+
 **Note**:
 - Scraper will automatically fetch latest job information from job websites
-- Data will be automatically saved to the database
+- Data will be automatically saved to the database using batch processing
 - If you don't want to run the scraper, you can manually add job data
 
 ## 📱 User Guide
@@ -417,6 +421,15 @@ docker exec -it jobtracker-pro-ai_service-1 ping google.com
 **Run scraper manually**:
 ```bash
 docker exec -it jobtracker-pro-ai_service-1 python main.py
+```
+
+**Check scraper logs**:
+```bash
+# View scraper output and batch processing details
+docker logs jobtracker-pro-ai_service-1
+
+# Monitor database for new job insertions
+docker exec -it jobtracker-pro-db-1 psql -U admin -d jobtracker -c "SELECT COUNT(*) FROM job;"
 ```
 
 ## 📊 API Documentation
