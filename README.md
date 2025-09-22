@@ -460,13 +460,7 @@ docker exec -it jobtracker-pro-db-1 psql -U admin -d jobtracker -c "SELECT COUNT
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-
-## 🙏 Acknowledgments
-
-- Spring Boot team for the excellent framework
-- React community for support
-- All contributors for their efforts
+This project is licensed under the MIT License - see the [LICENSE] file for details
 
 ---
 
