@@ -2,6 +2,10 @@
 
 An intelligent job management tool with AI-powered job recommendations, automated job scraping, and visual progress tracking.
 
+## 🔐 Security Notice
+
+**⚠️ Important**: This application requires environment variables for sensitive configuration. Please read the [Environment Setup](#2-configure-environment-variables) section before starting the application.
+
 ## ✨ Features
 
 - 🔍 **Smart Job Search** - Filter jobs by title, company, location, and more
@@ -51,14 +55,46 @@ git clone <your-repo-url>
 cd JobTracker-Pro
 ```
 
-### 2. Start Database Services
+### 2. Configure Environment Variables
+
+**⚠️ Important: Create environment file before starting services**
+
+```bash
+# Copy environment template
+cp env-template.txt .env
+
+# Edit the .env file with your actual values
+nano .env  # or use your preferred editor
+```
+
+**Required Environment Variables:**
+```bash
+# Database Configuration
+DB_URL=jdbc:postgresql://localhost:5432/jobtracker
+DB_USERNAME=admin
+DB_PASSWORD=your_secure_password
+
+# Security Configuration
+SPRING_SECURITY_USER_NAME=admin
+SPRING_SECURITY_USER_PASSWORD=your_secure_password
+
+# JWT Secret (generate with: openssl rand -base64 64)
+JWT_SECRET=your-super-secure-jwt-secret-key
+
+# Internal API Key (generate with: openssl rand -hex 32)
+APP_INTERNAL_API_KEY=your-long-random-internal-api-key
+```
+
+**🔐 Security Note**: Never commit `.env` files to version control!
+
+### 3. Start Database Services
 
 ```bash
 # Start only database services first
 docker-compose up -d db redis
 ```
 
-### 3. Create Database Schema
+### 4. Create Database Schema
 
 **⚠️ Important: Must create database tables before starting backend services**
 
@@ -114,20 +150,20 @@ CREATE TABLE user_favorites (
 "
 ```
 
-### 4. Start All Services
+### 5. Start All Services
 
 ```bash
 # Now start all services (backend, frontend, AI service)
 docker-compose up --build
 ```
 
-### 5. Access the Application
+### 6. Access the Application
 
 - **Frontend Interface**: http://localhost
 - **Backend API**: http://localhost:8080
 - **AI Service**: http://localhost:5000
 
-### 6. Get Job Data
+### 7. Get Job Data
 
 **Recommended: Run scraper to get latest job data**
 
@@ -187,6 +223,34 @@ JobTracker-Pro/
 
 ### Local Development
 
+#### Environment Setup
+
+**⚠️ Important: Configure environment variables for local development**
+
+```bash
+# Copy environment template
+cp env-template.txt .env
+
+# Edit with your local development values
+nano .env
+```
+
+**For local development, you can use these default values:**
+```bash
+# Database (make sure PostgreSQL is running locally)
+DB_URL=jdbc:postgresql://localhost:5432/jobtracker
+DB_USERNAME=admin
+DB_PASSWORD=password123
+
+# Security (change these for production!)
+SPRING_SECURITY_USER_NAME=admin
+SPRING_SECURITY_USER_PASSWORD=admin123
+
+# Generate secure keys for development
+JWT_SECRET=dev-jwt-secret-key-change-in-production
+APP_INTERNAL_API_KEY=dev-internal-api-key-change-in-production
+```
+
 #### Frontend Development
 
 ```bash
@@ -227,7 +291,44 @@ SELECT * FROM job LIMIT 10;
 
 ### Common Issues
 
-#### 1. 403 Error During Registration
+#### 1. Environment Variables Not Found
+
+**Error**: `Could not resolve placeholder 'DB_URL'` or similar
+
+**Solution**:
+```bash
+# Make sure .env file exists
+ls -la .env
+
+# If missing, copy template
+cp env-template.txt .env
+
+# Edit with your values
+nano .env
+
+# Restart services
+docker-compose restart
+```
+
+#### 2. Database Connection Failed
+
+**Error**: `Connection refused` or `Authentication failed`
+
+**Solution**:
+```bash
+# Check if .env file has correct database credentials
+cat .env | grep DB_
+
+# Test database connection
+docker exec -it jobtracker-pro-db-1 psql -U admin -d jobtracker
+
+# If connection fails, recreate database
+docker-compose down
+docker volume rm jobtracker-pro_pgdata_local
+docker-compose up -d db redis
+```
+
+#### 3. 403 Error During Registration
 
 **Cause**: Database table structure doesn't match entity classes
 
@@ -271,7 +372,7 @@ CREATE TABLE user_favorites (
 "
 ```
 
-#### 2. Services Won't Start
+#### 4. Services Won't Start
 
 **Check service status**:
 ```bash
@@ -290,7 +391,7 @@ docker-compose logs ai_service
 docker-compose restart
 ```
 
-#### 3. Scraper Can't Fetch Data
+#### 5. Scraper Can't Fetch Data
 
 **Check network connection**:
 ```bash
