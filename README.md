@@ -483,7 +483,4 @@ docker exec -it jobtracker-pro-db-1 psql -U admin -d jobtracker -c "SELECT COUNT
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ---
-
-**Start your job search journey now!** 🎯
-
-If you have any questions, please submit an Issue or contact the development team.
+Feel free to open an issue if you have any questions, suggestions, or concerns🥺🥹.
