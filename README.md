@@ -432,6 +432,13 @@ docker logs jobtracker-pro-ai_service-1
 docker exec -it jobtracker-pro-db-1 psql -U admin -d jobtracker -c "SELECT COUNT(*) FROM job;"
 ```
 
+## 📜 Scraper Disclaimer
+
+- **Purpose**: For educational and non-commercial use only.
+
+- **Compliance**: You must comply with the target website's robots.txt and Terms of Service. Do not use for any illegal activities.
+ 
+
 ## 📊 API Documentation
 
 ### Authentication Endpoints
