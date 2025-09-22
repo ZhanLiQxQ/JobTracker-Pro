@@ -2,6 +2,7 @@
 
 An intelligent job management tool with AI-powered job recommendations, automated job scraping, and visual progress tracking.
 
+![Project Demo](./images/demo.gif)
 ## 🔐 Security Notice
 
 **⚠️ Important**: This application requires environment variables for sensitive configuration. Please read the [Environment Setup](#2-configure-environment-variables) section before starting the application.

@@ -39,8 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/**").permitAll()  // Allow all GET requests to job-related endpoints
-                        .requestMatchers("/api/internal/**").permitAll() // <-- New: Allow all internal service interfaces
-                        .requestMatchers("/api/admin/**").hasRole("RADMIN")
+                        .requestMatchers("/api/internal/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // -- Regular user paths --
                         // Other non-GET /api/jobs/ paths require authentication
