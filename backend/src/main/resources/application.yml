@@ -17,12 +17,12 @@ spring:
 
   security:
     user:
-      name: zhan      # 自定义用户名
-      password: 123 # 自定义密码
-  # Redis 配置
+      name: zhan      # Custom username
+      password: 123 # Custom password
+  # Redis configuration
   data:
     redis:
-      host: ${REDIS_HOST:localhost}  # 支持环境变量，默认localhost
+      host: ${REDIS_HOST:localhost}  # Support environment variables, default localhost
       port: ${REDIS_PORT:6379}
       timeout: 2000ms
       lettuce:
@@ -31,33 +31,26 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1ms
+  servlet:
+    multipart:
+      max-file-size: 10MB      # Set maximum size for single file
+      max-request-size: 10MB   # Set maximum size for single request (can contain multiple files)
 
 jwt:
   secret: "thisIsASuperSecureKeyWithMoreThan64Characters1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  expiration: 86400000  # 24小时（毫秒）
+  expiration: 86400000  # 24 hours (milliseconds)
 
 app:
-  # 用于内部服务间通信的API密钥，请务必修改为一个长且随机的字符串
+  # API key for internal service communication, please modify to a long and random string
   internal-api-key: "thisisaramdomandVeryLongStringtoMakeItASecretKey155423asc5assajci,w,YAJCB"
 
-# AI服务配置
+# AI service configuration
 ai:
   service:
-    url: ${AI_SERVICE_URL:http://localhost:5000}  # AI服务URL，支持环境变量，默认localhost
+    url: ${AI_SERVICE_URL:http://localhost:5000}  # AI service URL, supports environment variables, default localhost
 
-# WebClient配置
+# WebClient configuration
 web:
   client:
     base:
-      url: ${WEB_CLIENT_BASE_URL:http://localhost:8000}  # WebClient基础URL，支持环境变量
-
-# AWS配置
-aws:
-  region: ${AWS_REGION:us-east-1}
-  access-key-id: ${AWS_ACCESS_KEY_ID:}
-  secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
-
-# S3配置
-s3:
-  bucket:
-    name: ${S3_BUCKET_NAME:jobtracker-resumes}
+      url: ${WEB_CLIENT_BASE_URL:http://localhost:8000}  # WebClient base URL, supports environment variables

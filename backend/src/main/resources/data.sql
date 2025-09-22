@@ -1,13 +1,13 @@
 
--- 删除表的顺序很重要，因为有外键约束
--- 先删除有外键依赖的表
+-- Order of table deletion is important due to foreign key constraints
+-- First delete tables with foreign key dependencies
 DROP TABLE IF EXISTS user_favorites CASCADE;
 
--- 然后删除被依赖的表
+-- Then delete the dependent tables
 DROP TABLE IF EXISTS job CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
--- 创建 users 表
+-- Create users table
 CREATE TABLE users (
                        id BIGSERIAL PRIMARY KEY,
                        email VARCHAR(255) NOT NULL UNIQUE,
@@ -18,7 +18,7 @@ CREATE TABLE users (
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 创建 job 表
+-- Create job table
 CREATE TABLE job (
                      id BIGSERIAL PRIMARY KEY,
                      title VARCHAR(255),
@@ -31,7 +31,7 @@ CREATE TABLE job (
                      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 创建 user_favorite 表
+-- Create user_favorite table
 CREATE TABLE user_favorite (
                                id BIGSERIAL PRIMARY KEY,
                                user_id BIGINT NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE user_favorite (
                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    -- 外键约束
+    -- Foreign key constraints
                                CONSTRAINT fk_user_favorite_user
                                    FOREIGN KEY (user_id)
                                        REFERENCES users(id)
@@ -52,14 +52,14 @@ CREATE TABLE user_favorite (
                                        REFERENCES job(id)
                                        ON DELETE CASCADE,
 
-    -- 确保同一用户不能收藏同一职位多次
+    -- Ensure same user cannot favorite same job multiple times
                                CONSTRAINT unique_user_job
                                    UNIQUE (user_id, job_id)
 );
 
 
 
--- 插入一些公开的职位数据
+-- Insert some public job data
 INSERT INTO job (title, company, location, description, source) VALUES
 ('Java开发工程师', '阿里巴巴', '杭州', '负责Java后端开发，要求3年以上经验，熟悉Spring Boot、MySQL等技术栈', 'LinkedIn'),
 ('前端开发工程师', '腾讯', '深圳', '负责React/Vue开发，要求2年以上经验，熟悉现代前端技术', 'Indeed'),

@@ -118,7 +118,7 @@ CREATE TABLE user_favorites (
 
 ```bash
 # Now start all services (backend, frontend, AI service)
-docker-compose up -d
+docker-compose up --build
 ```
 
 ### 5. Access the Application

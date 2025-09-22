@@ -1,33 +1,33 @@
 # --- Build Stage ---
-# 使用官方的 Maven 镜像作为构建环境，包含 Java 17
+# Use official Maven image as build environment, includes Java 17
 FROM maven:3.9.6-eclipse-temurin-17-focal AS build
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 复制 pom.xml 文件并下载依赖，以便利用Docker的层缓存
+# Copy pom.xml file and download dependencies to leverage Docker layer caching
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# 复制所有源代码
+# Copy all source code
 COPY src ./src
 
-# 打包应用成 jar 文件，跳过测试
+# Package application into jar file, skip tests
 RUN mvn package -DskipTests
 
 # --- Run Stage ---
-# 使用轻量的 OpenJDK 镜像作为运行环境
+# Use lightweight OpenJDK image as runtime environment
 FROM openjdk:17-jdk-slim
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 从构建阶段复制打包好的 jar 文件
+# Copy packaged jar file from build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# 暴露后端应用运行的端口
+# Expose port for backend application
 EXPOSE 8080
 
-# 容器启动时运行 jar 文件
-# 传入 SPRING_PROFILES_ACTIVE=prod 来激活生产环境配置
+# Run jar file when container starts
+# Pass SPRING_PROFILES_ACTIVE=prod to activate production environment configuration
 ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]

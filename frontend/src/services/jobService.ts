@@ -5,12 +5,10 @@ import { authService } from './authService';
 const API_BASE_URL = '/api';
 
 class JobService {
-  async getAllJobs(title: string = '', company: string = '', location: string = '', url:string = ''): Promise<Job[]> {
+  async getAllJobs(query: string = '', url: string = ''): Promise<Job[]> {
     const params = new URLSearchParams();
-    if (title) params.append('title', title);
-    if (company) params.append('company', company);
-    if (location) params.append('location', location);
-      if (url) params.append('url', url);
+    if (query) params.append('query', query);
+    if (url) params.append('url', url);
 
     const response = await fetch(`${API_BASE_URL}/jobs?${params.toString()}`);
     if (!response.ok) {

@@ -8,7 +8,7 @@ import java.util.List;
 public interface JobService {
     // Public access methods
     List<Job> getAllPublicJobs();
-    List<Job> searchJobs(String title, String company, String location);
+    List<Job> searchJobs(String query);
     Job getJobById(Long id);
 
     // Authentication required methods

@@ -163,7 +163,7 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
               </div>
               <div>
                 <p className="text-lg font-medium text-gray-900">Drag files here or click to select</p>
-                <p className="text-sm text-gray-500">支持PDF、Word格式，最大10MB</p>
+                <p className="text-sm text-gray-500">Supports PDF, Word format, max 10MB</p>
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}

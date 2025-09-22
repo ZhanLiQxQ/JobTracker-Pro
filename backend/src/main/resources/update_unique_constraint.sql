@@ -1,10 +1,10 @@
--- 更新Job表的唯一约束：从(title, company)改为url
--- 这个脚本用于修改现有的唯一约束
+-- Update Job table unique constraint: from (title, company) to url
+-- This script is used to modify existing unique constraints
 
--- 1. 首先删除现有的唯一约束
+-- 1. First delete existing unique constraint
 DO $$
 BEGIN
-    -- 检查是否存在旧的唯一约束
+    -- Check if old unique constraint exists
     IF EXISTS (
         SELECT 1 
         FROM information_schema.table_constraints 
@@ -14,16 +14,16 @@ BEGIN
     ) THEN
         -- 删除旧的唯一约束
         ALTER TABLE job DROP CONSTRAINT uk7q3pxg7dus3251mcbest4h8of;
-        RAISE NOTICE '成功删除旧的唯一约束 (title, company)';
+        RAISE NOTICE 'Successfully deleted old unique constraint (title, company)';
     ELSE
-        RAISE NOTICE '旧的唯一约束不存在，无需删除';
+        RAISE NOTICE 'Old unique constraint does not exist, no need to delete';
     END IF;
 END $$;
 
--- 2. 添加新的唯一约束（基于url）
+-- 2. Add new unique constraint (based on url)
 DO $$
 BEGIN
-    -- 检查是否已存在url的唯一约束
+    -- Check if url unique constraint already exists
     IF NOT EXISTS (
         SELECT 1 
         FROM information_schema.table_constraints 
@@ -33,13 +33,13 @@ BEGIN
     ) THEN
         -- 添加新的唯一约束
         ALTER TABLE job ADD CONSTRAINT uk_job_url UNIQUE (url);
-        RAISE NOTICE '成功添加新的唯一约束 (url)';
+        RAISE NOTICE 'Successfully added new unique constraint (url)';
     ELSE
-        RAISE NOTICE 'url的唯一约束已存在';
+        RAISE NOTICE 'url unique constraint already exists';
     END IF;
 END $$;
 
--- 3. 验证约束是否添加成功
+-- 3. Verify if constraint was added successfully
 SELECT 
 *
 FROM information_schema.table_constraints tc

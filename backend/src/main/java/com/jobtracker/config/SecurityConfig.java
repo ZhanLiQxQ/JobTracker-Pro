@@ -38,12 +38,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/**").permitAll()  // 允许所有GET请求到岗位相关接口
+                        .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/**").permitAll()  // Allow all GET requests to job-related endpoints
                         .requestMatchers("/api/internal/**").permitAll() // <-- New: Allow all internal service interfaces
                         .requestMatchers("/api/admin/**").hasRole("RADMIN")
 
                         // -- Regular user paths --
-                        // 其他非GET的 /api/jobs/ 路径需要认证
+                        // Other non-GET /api/jobs/ paths require authentication
                         .requestMatchers("/api/jobs/**").hasAnyRole("USER", "ADMIN")
                         // -- Fallback rule --
                         .anyRequest().authenticated()

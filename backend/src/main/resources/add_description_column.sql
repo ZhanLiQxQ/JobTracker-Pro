@@ -1,24 +1,24 @@
--- 为现有的job表添加description列
--- 如果列不存在则添加，如果存在则跳过
+-- Add description column to existing job table
+-- Add if column does not exist, skip if it exists
 
 DO $$
 BEGIN
-    -- 检查description列是否存在
+    -- Check if description column exists
     IF NOT EXISTS (
         SELECT 1 
         FROM information_schema.columns 
         WHERE table_name = 'job' 
         AND column_name = 'description'
     ) THEN
-        -- 添加description列
+        -- Add description column
         ALTER TABLE job ADD COLUMN description TEXT;
-        RAISE NOTICE '成功添加description列到job表';
+        RAISE NOTICE 'Successfully added description column to job table';
     ELSE
-        RAISE NOTICE 'description列已存在于job表中';
+        RAISE NOTICE 'description column already exists in job table';
     END IF;
 END $$;
 
--- 验证列是否添加成功
+-- Verify if column was added successfully
 SELECT column_name, data_type, is_nullable 
 FROM information_schema.columns 
 WHERE table_name = 'job' 
@@ -26,16 +26,16 @@ ORDER BY ordinal_position;
 
 
 INSERT INTO job (title, company, location, description, source)
-VALUES ('测试职位', '测试公司', '测试地点', '这是一个测试描述', '测试来源')
+VALUES ('Test Job', 'Test Company', 'Test Location', 'This is a test description', 'Test Source')
 RETURNING *;
 
--- 1. 查看当前数据库
+-- 1. View current database
 SELECT current_database();
 
--- 2. 查看job表结构
+-- 2. View job table structure
 \d job
 
--- 3. 查看job表的所有列
+-- 3. View all columns of job table
 SELECT column_name, data_type, is_nullable
 FROM information_schema.columns
 WHERE table_name = 'job'

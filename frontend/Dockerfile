@@ -1,34 +1,34 @@
 # --- Build Stage ---
-# 使用官方的 Node.js 镜像作为构建环境
+# Use official Node.js image as build environment
 FROM node:20-alpine AS build
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json 文件
+# Copy package.json and package-lock.json files
 COPY package.json package-lock.json ./
 
-# 安装项目依赖
+# Install project dependencies
 RUN npm install
 
-# 复制所有源代码
+# Copy all source code
 COPY . .
 
-# 构建生产版本的静态文件
+# Build production version static files
 RUN npm run build
 
 # --- Run Stage ---
-# 使用官方的 Nginx 镜像作为 Web 服务器
+# Use official Nginx image as web server
 FROM nginx:1.27-alpine
 
-# 将构建阶段生成的静态文件复制到 Nginx 的网站根目录
+# Copy static files generated in build stage to Nginx web root directory
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# 将自定义的 Nginx 配置文件复制到容器中
+# Copy custom Nginx configuration file to container
 COPY Nginx.conf /etc/nginx/conf.d/default.conf
 
-# 暴露 Nginx 默认的 80 端口
+# Expose Nginx default port 80
 EXPOSE 80
 
-# Nginx 默认会启动，我们保持默认命令
+# Nginx starts by default, we keep the default command
 CMD ["nginx", "-g", "daemon off;"]

@@ -40,10 +40,10 @@ function App() {
     }
   };
 
-  const handleSearch = async (title: string, company: string, location: string) => {
+  const handleSearch = async (query: string) => {
     try {
       setLoading(true);
-      const jobsData = await jobService.getAllJobs(title, company, location);
+      const jobsData = await jobService.getAllJobs(query);
       setJobs(jobsData);
       setError(null);
     } catch (err) {

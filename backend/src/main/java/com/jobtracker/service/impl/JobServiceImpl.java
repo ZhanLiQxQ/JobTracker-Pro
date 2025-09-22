@@ -12,7 +12,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
-
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -33,16 +34,42 @@ public class JobServiceImpl implements JobService {
 
 
     @Override
-    @Cacheable(value = "jobs", key = "T(String).format('search:%s:%s:%s', #title != null ? #title : 'null', #company != null ? #company : 'null', #location != null ? #location : 'null')")
-    public List<Job> searchJobs(String title, String company, String location) {
-        // If no search parameters, return all jobs directly (using all cache)
-        if ((title == null || title.trim().isEmpty()) && 
-            (company == null || company.trim().isEmpty()) && 
-            (location == null || location.trim().isEmpty())) {
-            return getAllPublicJobs();
+    @Cacheable(value = "jobs", key = "T(String).format('search:%s', #query != null ? #query : 'null')")
+    public List<Job> searchJobs(String query) {
+        // If query is empty, return all jobs
+        if (query == null || query.trim().isEmpty()) {
+            return jobRepository.findAll();
         }
-        return jobRepository.searchJobs(title, company, location);
+
+        // Use Lambda expressions to build dynamic queries
+        Specification<Job> spec = (root, criteriaQuery, criteriaBuilder) -> {
+            String searchTerm = query.toLowerCase().trim();
+            
+            // Create OR conditions: search in title, company, location
+            Predicate titlePredicate = criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("title")), 
+                "%" + searchTerm + "%"
+            );
+            
+            Predicate companyPredicate = criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("company")), 
+                "%" + searchTerm + "%"
+            );
+            
+            Predicate locationPredicate = criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("location")), 
+                "%" + searchTerm + "%"
+            );
+
+            // Use OR to connect all conditions
+            return criteriaBuilder.or(titlePredicate, companyPredicate, locationPredicate);
+        };
+
+        // Call findAll(spec) method to execute query
+        return jobRepository.findAll(spec);
     }
+
+
 
     @Override
     @Cacheable(value = "jobs", key = "'job:' + #id")
@@ -85,13 +112,13 @@ public class JobServiceImpl implements JobService {
         if (job.getUrl() == null || job.getUrl().trim().isEmpty()) {
             throw new IllegalArgumentException("Job URL cannot be empty");
         }
-        
+
         // Check if same job already exists (based on URL)
         Optional<Job> existingJob = jobRepository.findByUrl(job.getUrl());
         if (existingJob.isPresent()) {
             throw new IllegalArgumentException("Job URL already exists: " + job.getUrl());
         }
-        
+
         return jobRepository.save(job);
     }
 
@@ -102,12 +129,12 @@ public class JobServiceImpl implements JobService {
         if (jobs == null || jobs.isEmpty()) {
             return List.of();
         }
-        
+
         List<Job> savedJobs = new ArrayList<>();
         List<Job> skippedJobs = new ArrayList<>();
-        
+
         System.out.println("Starting batch save of " + jobs.size() + " jobs...");
-        
+
         for (Job job : jobs) {
             try {
                 // Validate URL is not empty
@@ -116,10 +143,10 @@ public class JobServiceImpl implements JobService {
                     skippedJobs.add(job);
                     continue;
                 }
-                
+
                 // Check if same job already exists (based on URL)
                 Optional<Job> existingJob = jobRepository.findByUrl(job.getUrl());
-                
+
                 if (existingJob.isPresent()) {
                     // If exists, skip duplicate job
                     skippedJobs.add(job);
@@ -136,7 +163,7 @@ public class JobServiceImpl implements JobService {
                 skippedJobs.add(job);
             }
         }
-        
+
         System.out.println("Batch save completed - Success: " + savedJobs.size() + ", Skipped: " + skippedJobs.size());
         return savedJobs;
     }
