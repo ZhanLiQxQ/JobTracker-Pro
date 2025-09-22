@@ -1,90 +1,85 @@
-# 🚀 JobTracker Pro - 智能求职追踪平台
+# 🚀 JobTracker Pro - Intelligent Job Tracking Platform
 
-一个集成 AI 岗位推荐的求职管理工具，自动爬取招聘信息 + 智能匹配 + 可视化进度追踪。
+An intelligent job management tool with AI-powered job recommendations, automated job scraping, and visual progress tracking.
 
-## 📖 多语言版本 / Multi-language Versions
+## ✨ Features
 
-- [中文版 / Chinese](README-中文版.md)
-- [English](README-EN.md)
+- 🔍 **Smart Job Search** - Filter jobs by title, company, location, and more
+- 🤖 **AI Job Recommendations** - Get personalized job suggestions based on your resume
+- 📊 **Progress Tracking** - Visualize your application status and statistics
+- 💾 **Favorites Management** - Save interesting jobs for later follow-up
+- 📄 **Resume Upload** - Upload and analyze your resume with AI
+- 🕷️ **Automated Scraping** - Automatically fetch the latest job postings
+- 🔐 **User Authentication** - Secure user registration and login system
 
-## ✨ 功能特性
+## 🛠️ Tech Stack
 
-- 🔍 **智能岗位搜索** - 支持按标题、公司、地点等条件筛选
-- 🤖 **AI 岗位推荐** - 基于简历内容智能推荐匹配岗位
-- 📊 **求职进度追踪** - 可视化展示申请状态和统计信息
-- 💾 **收藏管理** - 收藏感兴趣的岗位，便于后续跟进
-- 📄 **简历上传** - 支持简历文件上传和 AI 分析
-- 🕷️ **自动爬虫** - 定时爬取最新岗位信息
-- 🔐 **用户认证** - 安全的用户注册和登录系统
+### Frontend
+- **React 18** + **TypeScript** - Modern frontend framework
+- **Tailwind CSS** - Responsive UI design
+- **Vite** - Fast build tool
 
-## 🛠️ 技术栈
+### Backend
+- **Spring Boot 3** - Java enterprise framework
+- **Spring Security** - Security authentication and authorization
+- **JWT** - Stateless authentication
 
-### 前端
-- **React 18** + **TypeScript** - 现代化前端框架
-- **Tailwind CSS** - 响应式 UI 设计
-- **Vite** - 快速构建工具
+### Database
+- **PostgreSQL** - Main business database
+- **Redis** - Caching and session storage
 
-### 后端
-- **Spring Boot 3** - Java 企业级框架
-- **Spring Security** - 安全认证和授权
-- **JWT** - 无状态身份验证
+### AI Service
+- **Python** - AI recommendation algorithms
+- **Scikit-learn** - Machine learning library
+- **Sentence Transformers** - Text similarity computation
 
-### 数据库
-- **PostgreSQL** - 主业务数据库
-- **Redis** - 缓存和会话存储
+### Infrastructure
+- **Docker** - Containerized deployment
+- **Docker Compose** - Multi-service orchestration
 
-### AI 服务
-- **Python** - AI 推荐算法
-- **Scikit-learn** - 机器学习库
-- **Sentence Transformers** - 文本相似度计算
+## 🚀 Quick Start
 
-### 基础设施
-- **Docker** - 容器化部署
-- **Docker Compose** - 多服务编排
-
-## 🚀 快速开始
-
-### 环境要求
+### Prerequisites
 
 - Docker Desktop
 - Git
 
-### 1. 克隆项目
+### 1. Clone the Repository
 
 ```bash
 git clone <your-repo-url>
 cd JobTracker-Pro
 ```
 
-### 2. 启动数据库服务
+### 2. Start Database Services
 
 ```bash
-# 先只启动数据库服务
+# Start only database services first
 docker-compose up -d db redis
 ```
 
-### 3. 创建数据库表结构
+### 3. Create Database Schema
 
-**⚠️ 重要：必须先创建数据库表结构，再启动后端服务**
+**⚠️ Important: Must create database tables before starting backend services**
 
-#### 方式一：使用项目提供的 SQL 文件（推荐）
+#### Method 1: Use Project SQL File (Recommended)
 
 ```bash
-# 运行项目中的 data.sql 文件创建表结构和示例数据
+# Run the data.sql file to create table structure and sample data
 docker exec -i jobtracker-pro-db-1 psql -U admin -d jobtracker < backend/src/main/resources/data.sql
 ```
 
-#### 方式二：手动创建表结构
+#### Method 2: Manual Table Creation
 
 ```bash
-# 手动创建数据库表（如果方式一不工作）
+# Manually create database tables (if Method 1 doesn't work)
 docker exec -i jobtracker-pro-db-1 psql -U admin -d jobtracker -c "
--- 删除已存在的表（如果存在）
+-- Drop existing tables (if they exist)
 DROP TABLE IF EXISTS user_favorites CASCADE;
 DROP TABLE IF EXISTS job CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
--- 创建用户表
+-- Create users table
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -95,7 +90,7 @@ CREATE TABLE users (
     role VARCHAR(50) DEFAULT 'USER'
 );
 
--- 创建岗位表
+-- Create job table
 CREATE TABLE job (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -105,7 +100,7 @@ CREATE TABLE job (
     source VARCHAR(255)
 );
 
--- 创建用户收藏表
+-- Create user favorites table
 CREATE TABLE user_favorites (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -119,80 +114,80 @@ CREATE TABLE user_favorites (
 "
 ```
 
-### 4. 启动所有服务
+### 4. Start All Services
 
 ```bash
-# 现在启动所有服务（后端、前端、AI服务）
-docker-compose up -d
+# Now start all services (backend, frontend, AI service)
+docker-compose up --build
 ```
 
-### 5. 访问应用
+### 5. Access the Application
 
-- **前端界面**: http://localhost
-- **后端 API**: http://localhost:8080
-- **AI 服务**: http://localhost:5000
+- **Frontend Interface**: http://localhost
+- **Backend API**: http://localhost:8080
+- **AI Service**: http://localhost:5000
 
-### 6. 获取岗位数据
+### 6. Get Job Data
 
-**推荐：运行爬虫获取最新岗位数据**
+**Recommended: Run scraper to get latest job data**
 
 ```bash
-# 执行爬虫任务，获取最新岗位数据
+# Execute scraper to get latest job data
 docker exec -it jobtracker-pro-ai_service-1 python main.py
 ```
 
-**说明**：
-- 爬虫会自动从招聘网站获取最新岗位信息
-- 数据会自动保存到数据库中
-- 如果不想运行爬虫，可以手动添加岗位数据
+**Note**:
+- Scraper will automatically fetch latest job information from job websites
+- Data will be automatically saved to the database
+- If you don't want to run the scraper, you can manually add job data
 
-## 📱 使用指南
+## 📱 User Guide
 
-### 用户注册和登录
+### User Registration and Login
 
-1. 打开 http://localhost
-2. 点击右上角"登录"按钮
-3. 在弹窗中选择"注册"标签
-4. 输入邮箱和密码完成注册
-5. 使用注册的账号登录
+1. Open http://localhost
+2. Click the "Login" button in the top right corner
+3. Select the "Register" tab in the popup
+4. Enter your email and password to complete registration
+5. Use your registered account to log in
 
-### 搜索和浏览岗位
+### Search and Browse Jobs
 
-1. 在首页搜索框输入关键词（如"Java开发"、"前端工程师"）
-2. 选择公司名称和地点进行筛选
-3. 浏览搜索结果，查看岗位详情
-4. 点击"收藏"按钮保存感兴趣的岗位
+1. Enter keywords in the search box on the homepage (e.g., "Java Developer", "Frontend Engineer")
+2. Filter by company name and location
+3. Browse search results and view job details
+4. Click the "Favorite" button to save interesting jobs
 
-### 管理收藏岗位
+### Manage Favorite Jobs
 
-1. 点击顶部导航栏的"收藏"按钮
-2. 查看已收藏的岗位列表
-3. 可以添加个人笔记和标签
-4. 跟踪申请状态和进度
+1. Click the "Favorites" button in the top navigation
+2. View your list of favorited jobs
+3. Add personal notes and tags
+4. Track application status and progress
 
-### 上传简历获取推荐
+### Upload Resume for AI Recommendations
 
-1. 点击"简历上传"页面
-2. 上传您的简历文件（PDF格式）
-3. 系统将分析简历内容
-4. 在岗位列表中查看 AI 推荐的匹配岗位
+1. Go to the "Resume Upload" page
+2. Upload your resume file (PDF format)
+3. The system will analyze your resume content
+4. View AI-recommended matching jobs in the job list
 
-## 🔧 开发指南
+## 🔧 Development Guide
 
-### 项目结构
+### Project Structure
 
 ```
 JobTracker-Pro/
-├── frontend/          # React 前端应用
-├── backend/           # Spring Boot 后端服务
-├── ai_service/        # Python AI 推荐服务
-├── docker-compose.yml # Docker 编排配置
+├── frontend/          # React frontend application
+├── backend/           # Spring Boot backend service
+├── ai_service/        # Python AI recommendation service
+├── docker-compose.yml # Docker orchestration configuration
 └── README.md
 ```
 
-### 本地开发
+### Local Development
 
-#### 前端开发
+#### Frontend Development
 
 ```bash
 cd frontend
@@ -200,14 +195,14 @@ npm install
 npm run dev
 ```
 
-#### 后端开发
+#### Backend Development
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
-#### AI 服务开发
+#### AI Service Development
 
 ```bash
 cd ai_service
@@ -215,30 +210,30 @@ pip install -r requirements.txt
 python api.py
 ```
 
-### 数据库管理
+### Database Management
 
 ```bash
-# 连接数据库
+# Connect to database
 docker exec -it jobtracker-pro-db-1 psql -U admin -d jobtracker
 
-# 查看表结构
+# View table structure
 \dt
 
-# 查看数据
+# View data
 SELECT * FROM job LIMIT 10;
 ```
 
-## 🐛 故障排除
+## 🐛 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-#### 1. 注册时出现 403 错误
+#### 1. 403 Error During Registration
 
-**原因**: 数据库表结构与实体类不匹配
+**Cause**: Database table structure doesn't match entity classes
 
-**解决方案**: 
+**Solution**:
 ```bash
-# 重新创建数据库表
+# Recreate database tables
 docker exec -i jobtracker-pro-db-1 psql -U admin -d jobtracker -c "
 DROP TABLE IF EXISTS user_favorites;
 DROP TABLE IF EXISTS job;
@@ -276,75 +271,75 @@ CREATE TABLE user_favorites (
 "
 ```
 
-#### 2. 服务无法启动
+#### 2. Services Won't Start
 
-**检查服务状态**:
+**Check service status**:
 ```bash
 docker-compose ps
 ```
 
-**查看日志**:
+**View logs**:
 ```bash
 docker-compose logs backend
 docker-compose logs frontend
 docker-compose logs ai_service
 ```
 
-**重启服务**:
+**Restart services**:
 ```bash
 docker-compose restart
 ```
 
-#### 3. 爬虫无法获取数据
+#### 3. Scraper Can't Fetch Data
 
-**检查网络连接**:
+**Check network connection**:
 ```bash
 docker exec -it jobtracker-pro-ai_service-1 ping google.com
 ```
 
-**手动运行爬虫**:
+**Run scraper manually**:
 ```bash
 docker exec -it jobtracker-pro-ai_service-1 python main.py
 ```
 
-## 📊 API 文档
+## 📊 API Documentation
 
-### 认证接口
+### Authentication Endpoints
 
-- `POST /api/auth/signup` - 用户注册
-- `POST /api/auth/signin` - 用户登录
+- `POST /api/auth/signup` - User registration
+- `POST /api/auth/signin` - User login
 
-### 岗位接口
+### Job Endpoints
 
-- `GET /api/jobs` - 获取岗位列表
-- `GET /api/jobs/{id}` - 获取岗位详情
-- `POST /api/jobs/favorite` - 收藏岗位
-- `GET /api/jobs/favorites` - 获取收藏列表
+- `GET /api/jobs` - Get job list
+- `GET /api/jobs/{id}` - Get job details
+- `POST /api/jobs/favorite` - Favorite a job
+- `GET /api/jobs/favorites` - Get favorites list
 
-### 内部接口
+### Internal Endpoints
 
-- `POST /api/internal/jobs/batch-intake` - 批量导入岗位数据
+- `POST /api/internal/jobs/batch-intake` - Batch import job data
 
-## 🤝 贡献指南
+## 🤝 Contributing
 
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 许可证
+## 📄 License
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
-## 🙏 致谢
+## 🙏 Acknowledgments
 
-- Spring Boot 团队提供的优秀框架
-- React 社区的支持
-- 所有贡献者的努力
+- Spring Boot team for the excellent framework
+- React community for support
+- All contributors for their efforts
 
 ---
 
-**立即开始您的求职之旅！** 🎯
+**Start your job search journey now!** 🎯
 
-如有问题，请提交 Issue 或联系开发团队。
+If you have any questions, please submit an Issue or contact the development team.
