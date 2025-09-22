@@ -22,6 +22,7 @@ An intelligent job management tool with AI-powered job recommendations, automate
 - **React 18** + **TypeScript** - Modern frontend framework
 - **Tailwind CSS** - Responsive UI design
 - **Vite** - Fast build tool
+- **Nginx** - Web server and reverse proxy
 
 ### Backend
 - **Spring Boot 3** - Java enterprise framework
@@ -40,6 +41,7 @@ An intelligent job management tool with AI-powered job recommendations, automate
 ### Infrastructure
 - **Docker** - Containerized deployment
 - **Docker Compose** - Multi-service orchestration
+- **Nginx** - Reverse proxy and static file serving
 
 ## 🚀 Quick Start
 
@@ -59,11 +61,11 @@ cd JobTracker-Pro
 
 **⚠️ Important: Create environment file before starting services**
 
-```bash
-# Copy environment template
-cp env-template.txt .env
+Create a `.env` file in the project root with the following variables:
 
-# Edit the .env file with your actual values
+```bash
+# Create .env file
+touch .env
 nano .env  # or use your preferred editor
 ```
 
@@ -83,6 +85,16 @@ JWT_SECRET=your-super-secure-jwt-secret-key
 
 # Internal API Key (generate with: openssl rand -hex 32)
 APP_INTERNAL_API_KEY=your-long-random-internal-api-key
+
+# Optional: AI Service URL (default: http://localhost:5000)
+AI_SERVICE_URL=http://localhost:5000
+
+# Optional: Web Client Base URL (default: http://localhost:8000)
+WEB_CLIENT_BASE_URL=http://localhost:8000
+
+# Optional: Redis Configuration (default: localhost:6379)
+REDIS_HOST=localhost
+REDIS_PORT=6379
 ```
 
 **🔐 Security Note**: Never commit `.env` files to version control!
@@ -110,11 +122,6 @@ docker exec -i jobtracker-pro-db-1 psql -U admin -d jobtracker < backend/src/mai
 ```bash
 # Manually create database tables (if Method 1 doesn't work)
 docker exec -i jobtracker-pro-db-1 psql -U admin -d jobtracker -c "
--- Drop existing tables (if they exist)
-DROP TABLE IF EXISTS user_favorites CASCADE;
-DROP TABLE IF EXISTS job CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-
 -- Create users table
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
@@ -159,9 +166,11 @@ docker-compose up --build
 
 ### 6. Access the Application
 
-- **Frontend Interface**: http://localhost
-- **Backend API**: http://localhost:8080
-- **AI Service**: http://localhost:5000
+- **Frontend Interface**: http://localhost (served by Nginx)
+- **Backend API**: http://localhost:8080 (direct access)
+- **AI Service**: http://localhost:5000 (direct access)
+
+**Note**: The frontend is served through Nginx which acts as a reverse proxy, automatically routing `/api` requests to the backend service.
 
 ### 7. Get Job Data
 
@@ -214,7 +223,9 @@ docker exec -it jobtracker-pro-ai_service-1 python main.py
 
 ```
 JobTracker-Pro/
-├── frontend/          # React frontend application
+├── frontend/          # React frontend application (served by Nginx)
+│   ├── Nginx.conf     # Nginx configuration for reverse proxy
+│   └── Dockerfile     # Multi-stage build: Node.js + Nginx
 ├── backend/           # Spring Boot backend service
 ├── ai_service/        # Python AI recommendation service
 ├── docker-compose.yml # Docker orchestration configuration
@@ -227,11 +238,11 @@ JobTracker-Pro/
 
 **⚠️ Important: Configure environment variables for local development**
 
-```bash
-# Copy environment template
-cp env-template.txt .env
+Create a `.env` file in the project root:
 
-# Edit with your local development values
+```bash
+# Create .env file
+touch .env
 nano .env
 ```
 
@@ -249,6 +260,12 @@ SPRING_SECURITY_USER_PASSWORD=admin123
 # Generate secure keys for development
 JWT_SECRET=dev-jwt-secret-key-change-in-production
 APP_INTERNAL_API_KEY=dev-internal-api-key-change-in-production
+
+# Optional: Service URLs
+AI_SERVICE_URL=http://localhost:5000
+WEB_CLIENT_BASE_URL=http://localhost:8000
+REDIS_HOST=localhost
+REDIS_PORT=6379
 ```
 
 #### Frontend Development
@@ -300,12 +317,11 @@ SELECT * FROM job LIMIT 10;
 # Make sure .env file exists
 ls -la .env
 
-# If missing, copy template
-cp env-template.txt .env
-
-# Edit with your values
+# If missing, create .env file with required variables
+touch .env
 nano .env
 
+# Add the required environment variables (see step 2 above)
 # Restart services
 docker-compose restart
 ```
@@ -382,7 +398,7 @@ docker-compose ps
 **View logs**:
 ```bash
 docker-compose logs backend
-docker-compose logs frontend
+docker-compose logs frontend  # Nginx + React app
 docker-compose logs ai_service
 ```
 
