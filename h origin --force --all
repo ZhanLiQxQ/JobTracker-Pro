@@ -1,0 +1,264 @@
+[33mcommit 9cb2cd760aa7754fa6263933bc37633c6a520ff5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 11:09:17 2025 -0700
+
+    Update README.md
+
+[33mcommit d0e18c48e8270c38cf23861966afc591557cdb3d[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 11:07:12 2025 -0700
+
+    Update README.md
+
+[33mcommit 2bc2595ec196d1bc0d0c5ce902965c8bb4cf2bd9[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 10:13:00 2025 -0700
+
+    i
+
+[33mcommit c31cc108dcdc49728524a9530bb72c1b883ec4ab[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 09:20:03 2025 -0700
+
+    Update README.md
+
+[33mcommit 9f7fcb3fd0164d44afad84830f7eef6aff450d1e[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 09:05:55 2025 -0700
+
+    Update main.py
+
+[33mcommit 2de6013a8b4dcc554eb9b43094a1a9ea49ea0e56[m
+Merge: 17e9e32 40fc97c
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 08:34:12 2025 -0700
+
+    Merge branch 'main' of https://github.com/ZhanLiQxQ/JobTracker-Pro
+
+[33mcommit 17e9e321f12359d36fed788f2f7f4ed9c7b82aef[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 08:34:02 2025 -0700
+
+    Update README.md
+
+[33mcommit 40fc97c1e858485af8943b9531cb8bc6213f4651[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 08:30:48 2025 -0700
+
+    Create LICENSE
+
+[33mcommit 889c1fefaf42024f54f60a7491bacec2898497a4[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 08:22:17 2025 -0700
+
+    Update README.md
+
+[33mcommit 1c8de9605da080ff73e93a559e236f769c1f144e[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Mon Sep 22 08:17:08 2025 -0700
+
+    i
+
+[33mcommit 919401d827780c2da6490863042d6991d31c96e8[m
+Merge: 13da77e 8740883
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 22:13:27 2025 -0700
+
+    Merge branch 'main' of https://github.com/ZhanLiQxQ/JobTracker-Pro
+
+[33mcommit 13da77e179234e1797c7eaa5ee13359b7b45253e[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 22:13:17 2025 -0700
+
+    i
+
+[33mcommit 8740883eaf2437bee1f46b790da7510cc265d39b[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 22:11:52 2025 -0700
+
+    Delete frontend/frontend.iml
+
+[33mcommit 77378010e1a9d99501866ddcfbb6cb6a870603ca[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 21:32:43 2025 -0700
+
+    Update README.md
+
+[33mcommit 36b1a99a61ab22dd7bb907edf06261a8527536d5[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 21:21:51 2025 -0700
+
+    Update README.md
+
+[33mcommit 011969d811b8fa3e0e1524295aff78c9bfe05588[m
+Merge: 534e0c8 c474f13
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 20:00:51 2025 -0700
+
+    Merge branch 'main' of https://github.com/ZhanLiQxQ/JobTracker-Pro
+
+[33mcommit 534e0c841a6e3b28b0da6f0e96eab1b96121b9f4[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 20:00:36 2025 -0700
+
+    1
+
+[33mcommit c474f137355841cfc1f1a1b37ec7f3701d914b5b[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:57:31 2025 -0700
+
+    Delete backend/.gitattributes
+
+[33mcommit c38123b119ee517e775b6b0b08562137098bb218[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:57:14 2025 -0700
+
+    Delete .gitattributes
+
+[33mcommit c68de906472dc4f45e9dacd165bc5668f5f5093b[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:57:01 2025 -0700
+
+    Delete frontend/README.md
+
+[33mcommit 4e2126cc9594e5ff192c442b0818484898e5e422[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:51:58 2025 -0700
+
+    i
+
+[33mcommit a5b048ef9aa41f22fcdd0ecd96e2213c82f3e53a[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:50:01 2025 -0700
+
+    i
+
+[33mcommit 20a20d5722048566b026d6c03fc6721ae4993988[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:45:54 2025 -0700
+
+    ignore
+
+[33mcommit fcd234dd864f1ed1a15ba129c4c05b431f07ae39[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:44:29 2025 -0700
+
+    ignore
+
+[33mcommit 08e87840aff8e27155a70a46aee52e15d08f3695[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:35:15 2025 -0700
+
+    Revert "Merge branch 'main' of https://github.com/ZhanLiQxQ/JobTracker-Pro"
+    
+    This reverts commit 15f1b7e4dbd13baf5b3326d47c9227462a6192b8, reversing
+    changes made to dd304415809713a85994cd31cd1e7b40d3e0028e.
+
+[33mcommit 15f1b7e4dbd13baf5b3326d47c9227462a6192b8[m
+Merge: dd30441 9158f58
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:27:25 2025 -0700
+
+    Merge branch 'main' of https://github.com/ZhanLiQxQ/JobTracker-Pro
+
+[33mcommit 9158f5858a25b18c57f85c399c485eaa05725936[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:20:28 2025 -0700
+
+    Delete frontend/注意事项.md
+
+[33mcommit 559f8c6b34907075bb47a150005b2e41adcf36e5[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:20:19 2025 -0700
+
+    Delete frontend/README.md
+
+[33mcommit e4cddda8ce1816e84955cfc51476121a1e22fa62[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:19:05 2025 -0700
+
+    Delete backend/说明.md
+
+[33mcommit 79de0e79080a07f4792cbc179fdd2f5d4b2fbae9[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:18:45 2025 -0700
+
+    Delete backend/.gitignore
+
+[33mcommit 2a15137fa4c042091c369df6dd35f20fa4cab473[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:18:34 2025 -0700
+
+    Delete backend/.gitattributes
+
+[33mcommit f8ea11c14234939453491507804272ef926424ad[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:18:13 2025 -0700
+
+    Delete ai_service/.gitignore
+
+[33mcommit 14d09425cf754c846833b655b88bf886ae6f4932[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:17:47 2025 -0700
+
+    Delete ai_service/__pycache__ directory
+
+[33mcommit 3ac4ae6cb22f3e6c42816a1e31e2ed55bc02a32a[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:17:16 2025 -0700
+
+    Delete README.md
+
+[33mcommit dd304415809713a85994cd31cd1e7b40d3e0028e[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:15:59 2025 -0700
+
+    ignore
+
+[33mcommit 1f65f4a16357c4ef7bd4b97b8ab70f3d35ae7d77[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:08:52 2025 -0700
+
+    Delete README-中文版.md
+
+[33mcommit 0081a83c25e5b9c66db33fff540fdb04b98c574e[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:08:36 2025 -0700
+
+    Delete .gitattributes
+
+[33mcommit a84688b402041a369f0034d2548e771810fdbd2f[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:08:27 2025 -0700
+
+    Delete .idea directory
+
+[33mcommit 355b4f24da4c2f42d844e74e1d27e62bc3152313[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:08:09 2025 -0700
+
+    Delete frontend/.gitignore
+
+[33mcommit cac7fb9ec9cfbef11c287ef1e1ea2085b96b65b4[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:07:00 2025 -0700
+
+    Delete .env
+
+[33mcommit 0e2178d756df15a30a9854a028f90f05e2e018d9[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 19:06:09 2025 -0700
+
+    security and env
+
+[33mcommit cd5e9400f0e1684bf910d48eef5126fbcb833347[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 18:02:55 2025 -0700
+
+    update
+
+[33mcommit 755214b9b325795c4d2653366c25a289c688a262[m
+Author: Zhan Li <116830062+ZhanLiQxQ@users.noreply.github.com>
+Date:   Sun Sep 21 14:55:09 2025 -0700
+
+    Initial commit
