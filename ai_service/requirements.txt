@@ -1,6 +1,5 @@
 requests
 sentence-transformers
-scikit-learn
 flask
 flask-cors
 PyMuPDF     # For parsing PDF, extremely high performance
