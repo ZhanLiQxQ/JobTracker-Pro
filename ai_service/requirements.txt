@@ -5,3 +5,12 @@ flask-cors
 PyMuPDF     # For parsing PDF, extremely high performance
 python-docx # For parsing .docx Word documents
 playwright
+
+# --- RAG & Agent ---
+langchain
+langchain-community
+langchain-openai
+langchain-postgres
+psycopg2-binary  # database driven
+tiktoken        # calculating nums of token
+python-dotenv   # env management

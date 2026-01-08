@@ -40,6 +40,7 @@ services:
       context: ./ai_service
     restart: always
     environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - JAVA_BACKEND_INTAKE_URL=http://backend:8080/api/internal/jobs/batch-intake
       - JAVA_BACKEND_INTERNAL_JOBS_URL=http://backend:8080/api/internal/jobs
       - INTERNAL_API_KEY=${APP_INTERNAL_API_KEY}
@@ -48,7 +49,7 @@ services:
   # == Dependency Services (from docker-compose.yml, for local testing only) ==
   # ========================================================
   db:
-    image: postgres:15
+    image: pgvector/postgres:15
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
