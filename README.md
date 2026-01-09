@@ -129,7 +129,7 @@ docker-compose up -d db redis
 
 ```bash
 # Run the data.sql file to create table structure and sample data
-docker exec -i jobtracker-pro-db-1 psql -U admin -d jobtracker < backend/src/main/resources/data.sql
+docker exec -i jobtracker-pro-db-1 psql -U ${your_db_username} -d jobtracker < backend/src/main/resources/data.sql
 ```
 
 #### Method 2: Manual Table Creation
