@@ -7,6 +7,8 @@ services:
     build:
       context: ./backend
     restart: always
+    ports:
+      - "8080:8080"
     environment:
       # All sensitive information will be read from .env file
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
@@ -40,16 +42,23 @@ services:
       context: ./ai_service
     restart: always
     environment:
+      - PYTHONUNBUFFERED=1
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - JAVA_BACKEND_INTAKE_URL=http://backend:8080/api/internal/jobs/batch-intake
       - JAVA_BACKEND_INTERNAL_JOBS_URL=http://backend:8080/api/internal/jobs
       - INTERNAL_API_KEY=${APP_INTERNAL_API_KEY}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_NAME=jobtracker
+    ports:
+      - "5001:5000"  # 把电脑的 5001 映射到容器的 5000
 
   # ========================================================
   # == Dependency Services (from docker-compose.yml, for local testing only) ==
   # ========================================================
   db:
-    image: pgvector/postgres:15
+    image: pgvector/pgvector:pg15
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}

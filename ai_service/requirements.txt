@@ -5,6 +5,18 @@ flask-cors
 PyMuPDF     # For parsing PDF, extremely high performance
 python-docx # For parsing .docx Word documents
 playwright
+# --- RAG & Agent 核心库 ---
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-core==0.2.43
+langchain-text-splitters==0.2.4
+langchain-openai==0.1.23
+langchain-postgres==0.0.9
+langgraph==0.2.53
+psycopg[binary]
+psycopg2-binary
+tiktoken        # 计算 Token 数量
+python-dotenv   # 管理环境变量
 
 # --- RAG & Agent ---
 langchain

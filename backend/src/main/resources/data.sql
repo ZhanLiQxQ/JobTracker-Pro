@@ -1,7 +1,7 @@
 
 -- Order of table deletion is important due to foreign key constraints
 -- First delete tables with foreign key dependencies
-DROP TABLE IF EXISTS user_favorites CASCADE;
+DROP TABLE IF EXISTS user_favorite CASCADE;
 
 -- Then delete the dependent tables
 DROP TABLE IF EXISTS job CASCADE;

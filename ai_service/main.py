@@ -1,185 +1,228 @@
-# # scraper/scraper.py
-#
 import time
 import random
 import os
 import requests
 from playwright.sync_api import sync_playwright
+
 # --- Configuration ---
-# TARGET_URL = "https://weworkremotely.com/remote-software-developer-jobs"
 TARGET_URL = "https://weworkremotely.com/remote-jobs/search?sort=Any+Time"
 
-# Your Spring Boot backend API address
-# API_ENDPOINT = "http://localhost:8080/api/jobs"
-# Simulate different browser User-Agent list
+# User-Agent list
 USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-    # ... you can add more
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 ]
 
-# ai_service/scraper.py
-import requests
-
-# --- Configuration Area ---
-BACKEND_INTAKE_URL = os.environ.get("JAVA_BACKEND_INTAKE_URL", "http://localhost:8080/api/internal/jobs/batch-intake")
-
-INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "thisisaramdomandVeryLongStringtoMakeItASecretKey155423asc5assajci,w,YAJCB")
+# API Keys and URLs
+INTERNAL_API_KEY = os.environ.get("APP_INTERNAL_API_KEY", "internal_secret_key_change_this_to_random_string")
+BACKEND_INTAKE_URL = "http://localhost:8080/api/internal/jobs/batch-intake"
+AI_SERVICE_URL = "http://localhost:5001/rag/ingest_jobs"
 
 
 def save_jobs_batch_to_backend(jobs_data):
     """Batch call Spring Boot backend internal API to save job data using internal API key"""
     if not jobs_data:
         print("No job data to save")
-        return
+        return []
 
     try:
         headers = {
             'Content-Type': 'application/json',
-            'X-Internal-API-Key': INTERNAL_API_KEY  # Use internal API key
+            'X-Internal-API-Key': INTERNAL_API_KEY
         }
+        print(f"📡 Sending {len(jobs_data)} jobs to Java Backend...")
         response = requests.post(BACKEND_INTAKE_URL, json=jobs_data, headers=headers)
 
         if response.status_code == 200 or response.status_code == 201:
+            # --- 修复 1: 先获取 json 结果 ---
             result = response.json()
-            print(f"Successfully batch saved {result.get('count', len(jobs_data))} jobs")
-        else:
-            print(f"Batch save failed, status code: {response.status_code}, response: {response.text}")
-    except Exception as e:
-        print(f"Error occurred when calling batch save API: {e}")
 
+            # 你的 Java 代码返回的是 Map.of("jobs", savedJobs, ...)
+            if isinstance(result, dict) and 'jobs' in result:
+                saved_jobs = result['jobs']
+            elif isinstance(result, list):
+                saved_jobs = result
+            else:
+                print(f"⚠️ Unexpected response format from Java: {result.keys() if isinstance(result, dict) else result}")
+                return []
+
+            print(f"✅ Java Backend saved successfully. Received {len(saved_jobs)} IDs.")
+            return saved_jobs
+        else:
+            print(f"❌ Java Batch save failed: {response.status_code}, {response.text}")
+            return []
+
+    except Exception as e:
+        print(f"❌ Error sending to Java Backend: {e}")
+        return []
+
+def sync_jobs_to_vector_db(saved_jobs_from_java):
+    """Sync jobs to Python Vector DB (Missing in your snippet, added back)"""
+    if not saved_jobs_from_java:
+        return
+
+    print(f"🔄 Syncing {len(saved_jobs_from_java)} jobs to Vector DB...")
+
+    vector_payload = {"jobs": []}
+    for job in saved_jobs_from_java:
+        if 'id' not in job: continue
+        vector_payload["jobs"].append({
+            "id": job['id'],
+            "title": job['title'],
+            "description": job['description'],
+            "url": job.get('url', ''),
+            "source": job.get('source', 'Crawler')
+        })
+
+    try:
+        response = requests.post(AI_SERVICE_URL, json=vector_payload)
+        if response.status_code == 200:
+            print(f"✅ Vector DB sync successful!")
+        else:
+            print(f"❌ Vector DB sync failed: {response.text}")
+    except Exception as e:
+        print(f"❌ Error syncing to Vector DB: {e}")
 
 
 def scrape_jobs():
     """Main scraper function"""
-
-    print(BACKEND_INTAKE_URL)
+    print(f"Java URL: {BACKEND_INTAKE_URL}")
     print("Starting scraper task...")
-
-    # Create a list to store all scraped job information
     all_jobs_data = []
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        # --- 修复 2: 改为 headless=False (有头模式) ---
+        # 在本地运行时，这是绕过 Cloudflare 最稳妥的方法
+        browser = p.chromium.launch(
+            headless=False,  # <--- 关键修改：弹出浏览器窗口
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+            ]
+        )
+
         user_agent = random.choice(USER_AGENTS)
-        context = browser.new_context(user_agent=user_agent)
+        context = browser.new_context(
+            user_agent=user_agent,
+            viewport={'width': 1280, 'height': 800} # 设置一个常见的窗口大小
+        )
+
+        context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined
+            });
+        """)
+
         page = context.new_page()
 
         try:
-            page.goto(TARGET_URL, wait_until="networkidle", timeout=60000)
-            print(f"Page opened: {page.title()}")
-            time.sleep(random.uniform(3, 7))
+            print(f"Visiting list page: {TARGET_URL}")
+            # 有头模式下，Cloudflare 验证通常会自动通过
+            page.goto(TARGET_URL, wait_until="domcontentloaded", timeout=60000)
+            time.sleep(random.uniform(3, 5))
 
             job_listings = page.query_selector_all(".new-listing-container")
             print(f"Found {len(job_listings)} jobs on this page.")
 
+            # 为了调试，只爬前 3 个，避免刷太快被封 IP
+            # job_listings = job_listings[:3]
+
             base_url = "https://weworkremotely.com"
 
-            for i, listing in enumerate(job_listings, 1):  # Use enumerate to track which job number
+            for i, listing in enumerate(job_listings[:20], 1):
                 try:
-                    print(f"--- Parsing job {i} ---")  # Debug info, convenient for problem location
+                    print(f"--- Parsing job {i} ---")
 
-                    # --- Extract information (added safety checks) ---
+                    title_el = listing.query_selector(".new-listing__header__title")
+                    title = title_el.inner_text() if title_el else "N/A"
 
-                    # Find title element
-                    title_element = listing.query_selector(".new-listing__header__title")
-                    # Check if found, if found extract text, otherwise set to "N/A"
-                    title = title_element.inner_text() if title_element else "N/A"
+                    company_el = listing.query_selector(".new-listing__company-name")
+                    company = company_el.inner_text() if company_el else "N/A"
 
-                    # Find company element
-                    company_element = listing.query_selector(".new-listing__company-name")
-                    company = company_element.inner_text() if company_element else "N/A"
+                    location_el = listing.query_selector(".new-listing__company-headquarters")
+                    location = location_el.inner_text() if location_el else "N/A"
 
-                    # Find location element
-                    location_element = listing.query_selector(".new-listing__company-headquarters")
-                    location = location_element.inner_text() if location_element else "N/A"
+                    link_el = listing.query_selector('a[href*="/remote-jobs/"]')
+                    job_url_path = link_el.get_attribute("href") if link_el else None
 
-                    # Find job link element
-                    link_element = listing.query_selector('a[href*="/remote-jobs/"]')
-                    job_url_path = link_element.get_attribute("href") if link_element else None
-
-                    # If even the most important link cannot be found, skip this entry
                     if not job_url_path:
-                        print(f"Warning: Job {i} could not find key link, skipping.")
+                        print(f"Warning: Job {i} no link, skipping.")
                         continue
 
-                    # --- Core modification: visit detail page to get complete description ---
                     job_detail_url = base_url + job_url_path
-                    print(f"Visiting detail page: {job_detail_url}")
+                    print(f"Visiting: {job_detail_url}")
 
-                    # Open a new tab in the same browser context
                     detail_page = context.new_page()
-                    detail_page.goto(job_detail_url, wait_until="domcontentloaded")
 
-                    # Use the detail page selector you found to extract description
-                    description_element = detail_page.query_selector(".lis-container__job__content__description")
+                    # 加载详情页
+                    detail_page.goto(job_detail_url, wait_until="domcontentloaded", timeout=60000)
+
+                    # 智能等待：如果有 Cloudflare，有头模式下通常会自动跳转
+                    # 我们只需要检查最终的元素是否出现
+                    possible_selectors = [
+                        ".lis-container__job__content__description",
+                        "#job-listing-show-container",
+                        ".listing-container",
+                        "div.content"
+                    ]
 
                     full_description = ""
-                    if description_element:
-                        full_description = description_element.inner_text()
-                    else:
-                        print(f"Warning: Could not find description section on detail page.")
+                    for selector in possible_selectors:
+                        try:
+                            # 增加等待时间到 5 秒
+                            element = detail_page.wait_for_selector(selector, timeout=5000, state="attached")
+                            if element:
+                                full_description = element.inner_text().strip()
+                                if full_description:
+                                    break
+                        except:
+                            continue
 
-                    # After completing the task, close this detail page tab to release resources
+                    if not full_description:
+                        # 如果还是拿不到，说明可能是需要登录或者被强制拦截了
+                        print(f"Warning: Empty description. Title: {detail_page.title()}")
+
                     detail_page.close()
-                    # -------------------------------------------
-                    job_data = {
-                        "title": title.strip(),
-                        "company": company.strip(),
-                        "location": location.strip(),
-                        "description": full_description.strip(),
-                        "url": job_detail_url,
-                        "source": "We Work Remotely"
-                    }
 
-                    # Store data in list (no longer save individually)
-                    all_jobs_data.append(job_data)
+                    if full_description:
+                        job_data = {
+                            "title": title.strip(),
+                            "company": company.strip(),
+                            "location": location.strip(),
+                            "description": full_description,
+                            "url": job_detail_url,
+                            "source": "We Work Remotely"
+                        }
+                        all_jobs_data.append(job_data)
+                    else:
+                        print(f"Skipping job {i} due to empty description.")
 
-                    # Random delay
-                    time.sleep(random.uniform(2, 5))  # Access secondary pages, can appropriately increase delay
-
-                except Exception as e:
-                    print(f"Error parsing individual job: {e}")
-                    if 'detail_page' in locals() and not detail_page.is_closed():
-                        detail_page.close()  # If error occurs, also ensure tab is closed
+                    # 模拟人类阅读时间
+                    time.sleep(random.uniform(2, 4))
 
                 except Exception as e:
-                    # This except will now only catch unexpected serious errors
-                    print(f"Unknown error occurred when parsing job {i}: {e}")
+                    print(f"Error parsing job {i}: {e}")
+                    # 确保出错时关闭页面
+                    if 'detail_page' in locals():
+                        try: detail_page.close()
+                        except: pass
 
-
-        # When encountering an error with one piece of information, the try error is caught and the except block is executed immediately, then enters the next loop. It will not crash entirely.
         except Exception as e:
-            print(f"Serious error occurred during scraping: {e}")
+            print(f"Serious error: {e}")
         finally:
             browser.close()
 
-    # --- Batch save all job data ---
+    # --- Batch save ---
     if all_jobs_data:
         print(f"\nStarting batch save of {len(all_jobs_data)} jobs...")
-        save_jobs_batch_to_backend(all_jobs_data)
+        saved_jobs_with_ids = save_jobs_batch_to_backend(all_jobs_data)
+
+        if saved_jobs_with_ids:
+            sync_jobs_to_vector_db(saved_jobs_with_ids)
     else:
         print("\nNo job data was scraped")
 
-    # --- After all scraping is complete, print results uniformly ---
-    print("\n" + "=" * 50)
-    print("Scraper debug output results:")
-    print(f"Total scraped {len(all_jobs_data)} jobs.")
-    print("=" * 50)
-
-    # Print information for each job one by one
-    for i, job in enumerate(all_jobs_data, 1):
-        print(f"\n--- Job {i} ---")
-        print(f"  Title: {job['title']}")
-        print(f"  Company: {job['company']}")
-        print(f"  Location: {job['location']}")
-        print(f"  Description: {job['description'][:100]}..." if job['description'] else "  Description: None")
-        print(f"  Link: {job['url']}")
-
     print("\nScraper task completed.")
 
-
-# --- For convenience of directly running this file for debugging ---
 if __name__ == "__main__":
-    # Run main function
     scrape_jobs()

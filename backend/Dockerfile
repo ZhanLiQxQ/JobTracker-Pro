@@ -17,7 +17,7 @@ RUN mvn package -DskipTests
 
 # --- Run Stage ---
 # Use lightweight OpenJDK image as runtime environment
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-focal
 
 # Set working directory
 WORKDIR /app

@@ -2,8 +2,8 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/jobtracker
-    username: admin
-    password: password123
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password123}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5

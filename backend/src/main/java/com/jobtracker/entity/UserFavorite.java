@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "user_favorites")
+@Table(name = "user_favorite")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // Ignore lazy loading related properties
 public class UserFavorite {
     @Id

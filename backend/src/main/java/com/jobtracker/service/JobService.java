@@ -8,9 +8,8 @@ import java.util.List;
 public interface JobService {
     // Public access methods
     List<Job> getAllPublicJobs();
-    List<Job> searchJobs(String query);
     Job getJobById(Long id);
-
+    List<Job> searchHybridJobs(String query);
     // Authentication required methods
     List<Job> getUserFavorites(Users user);
     void addToFavorites(Users user, Long jobId, String notes);

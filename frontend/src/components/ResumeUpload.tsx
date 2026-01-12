@@ -67,23 +67,47 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
       setError('Please select a file first');
       return;
     }
-
-    if (!authService.isAuthenticated()) {
-      setError('Please login first before uploading resume');
-      return;
-    }
+// 注意：如果是纯测试，暂时可以注释掉 authService 检查
+    // if (!authService.isAuthenticated()) ...
 
     setUploading(true);
     setError(null);
     setRecommendedJobs([]);
 
     try {
-      const jobs = await jobService.getRecommendationsFromResume(selectedFile);
+      // 1. 第一阶段：快速获取列表 (调用 Python /recommend_file)
+      // 返回的 jobs 里 aiReason 都是 null
+      const { jobs, resumeText } = await jobService.uploadResumeToAI(selectedFile);
+
+      // 立即渲染列表，用户看到岗位卡片和 "Loading..." 动画
       setRecommendedJobs(jobs);
+      setUploading(false); // 停止整体 Loading
+
+      // 2. 第二阶段：懒加载 AI 解释
+      // 遍历所有岗位，并发起请求
+      jobs.forEach(async (job) => {
+        try {
+          // 调用 Python /rag/explain_job
+          const reason = await jobService.getAIExplanation(
+            job.description || "",
+            resumeText
+          );
+
+          // 3. 第三阶段：更新单个 Job 的状态
+          // 使用函数式更新，确保在闭包中拿到最新的 state
+          setRecommendedJobs(prevJobs =>
+            prevJobs.map(j =>
+              j.id === job.id ? { ...j, aiReason: reason } : j
+            )
+          );
+        } catch (e) {
+          console.error(`Failed to fetch AI reason for job ${job.id}`, e);
+        }
+      });
+
     } catch (err) {
-      setError('Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
-    } finally {
       setUploading(false);
+      setError('Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
 
@@ -206,9 +230,9 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
             Recommended Jobs for You ({recommendedJobs.length} jobs)
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recommendedJobs.map((job) => (
+            {recommendedJobs.map((job, index) => (
               <JobCard
-                key={job.id}
+                key={`${job.id}-${index}`}
                 job={job}
                 onFavoriteChange={onFavoriteChange}
               />

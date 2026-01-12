@@ -159,7 +159,7 @@ CREATE TABLE job (
 );
 
 -- Create user favorites table
-CREATE TABLE user_favorites (
+CREATE TABLE user_favorite (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     job_id BIGINT NOT NULL,
@@ -369,7 +369,7 @@ docker-compose up -d db redis
 ```bash
 # Recreate database tables
 docker exec -i jobtracker-pro-db-1 psql -U admin -d jobtracker -c "
-DROP TABLE IF EXISTS user_favorites;
+DROP TABLE IF EXISTS user_favorite;
 DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS users;
 
@@ -392,7 +392,7 @@ CREATE TABLE job (
     source VARCHAR(255)
 );
 
-CREATE TABLE user_favorites (
+CREATE TABLE user_favorite (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     job_id BIGINT NOT NULL,

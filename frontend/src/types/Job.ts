@@ -8,4 +8,5 @@ export interface Job {
   description?: string; 
   isFavorite?: boolean; // Whether favorited by current user
   matchScore?: number;  // Match score (only for resume recommendation results)
+  aiReason?: string | null;
 }
