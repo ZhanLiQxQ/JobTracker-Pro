@@ -14,8 +14,9 @@ USER_AGENTS = [
 ]
 
 # API Keys and URLs
-INTERNAL_API_KEY = os.environ.get("APP_INTERNAL_API_KEY", "internal_secret_key_change_this_to_random_string")
-BACKEND_INTAKE_URL = "http://localhost:8080/api/internal/jobs/batch-intake"
+INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "internal_secret_key_change_this_to_random_string")
+DEFAULT_BACKEND_URL = "http://localhost:8080/api/internal/jobs/batch-intake"
+BACKEND_INTAKE_URL = os.environ.get("JAVA_BACKEND_INTAKE_URL", DEFAULT_BACKEND_URL)
 AI_SERVICE_URL = "http://localhost:5001/rag/ingest_jobs"
 
 
@@ -94,7 +95,8 @@ def scrape_jobs():
         # --- 修复 2: 改为 headless=False (有头模式) ---
         # 在本地运行时，这是绕过 Cloudflare 最稳妥的方法
         browser = p.chromium.launch(
-            headless=False,  # <--- 关键修改：弹出浏览器窗口
+            headless=True,
+            # headless=False,  # <--- 关键修改：弹出浏览器窗口
             args=[
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
