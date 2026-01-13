@@ -42,6 +42,7 @@ public class JobController {
         } else {
             jobs = jobService.getAllPublicJobs();
         }
+        System.out.println("Deploy Test v1");
 
         // (可选优化) 如果你想在后端处理 isFavorite，可以在这里调用 jobService.attachFavorites(jobs, user)
         // 但为了配合你现有的前端逻辑（前端发第二次请求查收藏），这里直接返回 jobs 即可
