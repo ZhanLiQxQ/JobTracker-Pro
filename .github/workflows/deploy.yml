@@ -44,3 +44,17 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/jobtracker-frontend:latest
+
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            mkdir -p jobtracker
+            cd jobtracker
+            docker-compose down
+            docker-compose pull  
+            docker-compose up -d 
+            docker image prune -f
