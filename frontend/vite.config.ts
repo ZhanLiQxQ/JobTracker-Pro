@@ -11,6 +11,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api')
+      },
+      '/ai': {
+          target: 'http://localhost:5001',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/ai/, '') // 本地开发也模拟 Nginx 去掉 /ai
       }
     }
   }

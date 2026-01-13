@@ -3,8 +3,10 @@ import { authService } from './authService';
 
 // Use relative path, access backend through Vite proxy
 const API_BASE_URL = '/api';
-// Python AI 服务地址
-const AI_SERVICE_URL = 'http://localhost:5001';
+// Python AI
+const AI_SERVICE_URL = '/ai';
+
+
 class JobService {
   async getAllJobs(query: string = '', url: string = ''): Promise<Job[]> {
     const params = new URLSearchParams();
