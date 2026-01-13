@@ -11,7 +11,7 @@ COPY requirements.txt .
 # --no-cache-dir option can reduce the final image size
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./model_data ./model_data
+COPY ./fine-tuned-english-bert ./fine-tuned-english-bert
 # Copy all application code (including fine-tuned model folder)
 COPY *.py .
 
