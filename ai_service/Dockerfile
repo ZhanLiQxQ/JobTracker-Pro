@@ -1,22 +1,22 @@
-# Use Playwright officially recommended image, includes all browser dependencies
-FROM mcr.microsoft.com/playwright/python:v1.57.0-jammy
 
-# Set working directory
+FROM python:3.9-slim
+
 WORKDIR /app
 
-# Copy dependency files
-COPY requirements.txt .
 
-# Install dependencies
-# --no-cache-dir option can reduce the final image size
+RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /var/lib/apt/lists/*
+
+
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+
 COPY ./fine-tuned-english-bert ./fine-tuned-english-bert
-# Copy all application code (including fine-tuned model folder)
+
+
 COPY *.py .
 
-# Expose Flask service port
 EXPOSE 5000
 
-# Command to run when container starts
+# 6. 启动命令
 CMD ["python", "api.py"]

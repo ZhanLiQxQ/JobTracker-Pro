@@ -4,7 +4,9 @@ flask
 flask-cors
 PyMuPDF     # For parsing PDF, extremely high performance
 python-docx # For parsing .docx Word documents
-playwright
+beautifulsoup4
+lxml
+
 # --- RAG & Agent 核心库 ---
 langchain==0.2.16
 langchain-community==0.2.16

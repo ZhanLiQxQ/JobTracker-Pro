@@ -2,7 +2,7 @@ import time
 import random
 import os
 import requests
-from playwright.sync_api import sync_playwright
+# from playwright.sync_api import sync_playwright
 
 # --- Configuration ---
 TARGET_URL = "https://weworkremotely.com/remote-jobs/search?sort=Any+Time"
