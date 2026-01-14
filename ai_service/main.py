@@ -15,9 +15,12 @@ USER_AGENTS = [
 
 # API Keys and URLs
 INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "internal_secret_key_change_this_to_random_string")
+
 DEFAULT_BACKEND_URL = "http://localhost:8080/api/internal/jobs/batch-intake"
 BACKEND_INTAKE_URL = os.environ.get("JAVA_BACKEND_INTAKE_URL", DEFAULT_BACKEND_URL)
-AI_SERVICE_URL = "http://localhost:5001/rag/ingest_jobs"
+
+DEFAULT_AI_URL = "http://localhost:5000/rag/ingest_jobs"
+AI_SERVICE_URL = os.environ.get("AI_SERVICE_INGEST_URL", DEFAULT_AI_URL)
 
 
 def save_jobs_batch_to_backend(jobs_data):

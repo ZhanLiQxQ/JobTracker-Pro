@@ -46,6 +46,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - JAVA_BACKEND_INTAKE_URL=http://backend:8080/api/internal/jobs/batch-intake
       - JAVA_BACKEND_INTERNAL_JOBS_URL=http://backend:8080/api/internal/jobs
+      - AI_SERVICE_INGEST_URL=http://ai_service:5000/rag/ingest_jobs
       - INTERNAL_API_KEY=${APP_INTERNAL_API_KEY}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
