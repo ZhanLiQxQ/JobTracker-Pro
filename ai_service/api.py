@@ -7,42 +7,42 @@ import docx
 import io
 import os
 
-# --- 从 rag_core 导入组件 ---
+# --- Import components from rag_core ---
 from rag_core import ingest_jobs_to_vector_db, vector_store, llm
 from langchain.schema import HumanMessage, SystemMessage
 
 app = Flask(__name__)
-# 允许跨域，方便前端调试
+# Enable CORS for frontend debugging
 CORS(app)
 
 # ==========================================
-# 1. 修改工具函数：不再接收流，而是直接接收 bytes 数据
+# 1. Modified utility function: receive bytes data directly instead of stream
 # ==========================================
 def extract_text(file_bytes, filename):
     """
-    从文件字节流中提取纯文本
-    :param file_bytes: 文件的二进制内容 (bytes)
-    :param filename: 文件名 (用于判断类型)
+    Extract plain text from file bytes
+    :param file_bytes: Binary content of the file (bytes)
+    :param filename: Filename (used to determine file type)
     """
     text = ""
     try:
         if filename.lower().endswith('.pdf'):
-            # fitz.open 直接接收 bytes
+            # fitz.open accepts bytes directly
             pdf_document = fitz.open(stream=file_bytes, filetype="pdf")
             for page in pdf_document:
                 text += page.get_text()
             pdf_document.close()
 
         elif filename.lower().endswith('.docx'):
-            # python-docx 需要一个“类文件对象”，所以我们要用 io.BytesIO 包装一下 bytes
+            # python-docx requires a file-like object, so we wrap bytes with io.BytesIO
             doc = docx.Document(io.BytesIO(file_bytes))
             for para in doc.paragraphs:
                 text += para.text + '\n'
         else:
             return None
     except Exception as e:
-        print(f"❌ 解析文件底层报错: {e}")
-        # 这里可以把具体的报错抛出去，方便排查
+        print(f"Error parsing file: {e}")
+        # Throw the specific error for troubleshooting
         raise e
     return text
 
@@ -50,47 +50,47 @@ def extract_text(file_bytes, filename):
 
 def perform_vector_search(query_text, top_k=3):
     """
-    通用搜索逻辑：只负责查向量库，不负责 AI 生成。
-    速度极快。
+    General search logic: only responsible for querying vector database, not AI generation.
+    Very fast.
     """
     if not query_text:
         return []
 
-    print(f"🔍 [RAG] 正在检索: {query_text[:50]}...", flush=True)
+    print(f"[RAG] Searching: {query_text[:50]}...", flush=True)
 
-    # 1. 向量搜索
+    # 1. Vector search
     results = vector_store.similarity_search_with_score(query_text, k=top_k)
 
     recommendations = []
     for doc, score in results:
-        # 提取数据
+        # Extract data
         recommendations.append({
             "job_id": doc.metadata.get('job_id'),
-            "title": doc.page_content.split('\n')[0], # 简单提取第一行作为标题
-            "description": doc.page_content,           # 完整内容，前端稍后需要传回给 AI 接口
-            "match_score": float(score),               # 相似度分数
+            "title": doc.page_content.split('\n')[0], # Simple extraction of first line as title
+            "description": doc.page_content,           # Full content, frontend will pass this back to AI interface later
+            "match_score": float(score),               # Similarity score
             "url": doc.metadata.get('url'),
             "source": doc.metadata.get('source'),
-            "ai_reason": None                          # 占位符，由前端后续填充
+            "ai_reason": None                          # Placeholder, to be filled by frontend later
         })
 
     return recommendations
 
 # ==========================================
-# 2. 核心路由接口
+# 2. Core route interfaces
 # ==========================================
 
-# --- 接口 A: 数据入库 (爬虫调用) ---
+# --- Interface A: Data ingestion (called by crawler) ---
 @app.route('/rag/ingest_jobs', methods=['POST'])
 def rag_ingest_jobs():
     data = request.json
-    jobs = data.get('jobs') # 这是一个 List
+    jobs = data.get('jobs') # This is a List
 
     if not jobs:
         return jsonify({"error": "No jobs provided"}), 400
 
     try:
-        # 调用 rag_core 里的函数存入 Postgres
+        # Call function in rag_core to save to Postgres
         ingest_jobs_to_vector_db(jobs)
         return jsonify({"status": "success", "count": len(jobs)})
     except Exception as e:
@@ -98,7 +98,7 @@ def rag_ingest_jobs():
         return jsonify({"error": str(e)}), 500
 
 
-# --- 接口 B: 文本快速搜索 (前端：用户输入关键词时调用) ---
+# --- Interface B: Fast text search (frontend: called when user enters keywords) ---
 @app.route('/rag/search_only', methods=['POST'])
 def search_only_endpoint():
     data = request.json
@@ -108,14 +108,14 @@ def search_only_endpoint():
     if not query_text:
         return jsonify({"error": "Query text is required"}), 400
 
-    # 只执行快速检索
+    # Only perform fast retrieval
     results = perform_vector_search(query_text, top_k)
     return jsonify({"results": results})
 
 
 
 # ==========================================
-# 2. 修改路由接口：先读取 bytes，确保不为空
+# 2. Modified route interface: read bytes first, ensure not empty
 # ==========================================
 @app.route('/recommend_file', methods=['POST'])
 def recommend_from_file():
@@ -127,29 +127,29 @@ def recommend_from_file():
         return jsonify({"error": "No selected file"}), 400
 
     try:
-        print(f"📄 接收到文件: {file.filename}")
+        print(f"Received file: {file.filename}")
 
-        # --- 关键修改点 ---
-        # 1. 显式地读取文件内容到内存
+        # --- Key modification point ---
+        # 1. Explicitly read file content into memory
         file_content = file.read()
 
-        # 2. 打印文件大小，这是最重要的调试信息！
-        # 如果这里打印是 0，说明文件根本没传上来，或者流坏了
+        # 2. Print file size, this is the most important debug information!
+        # If this prints 0, it means the file was not uploaded or the stream is broken
         file_size = len(file_content)
-        print(f"📊 文件大小: {file_size} bytes")
+        print(f"File size: {file_size} bytes")
 
         if file_size == 0:
             return jsonify({"error": "Uploaded file is empty"}), 400
 
-        # 3. 把读好的 bytes 传给解析函数
+        # 3. Pass the read bytes to the parsing function
         resume_text = extract_text(file_content, file.filename)
 
         if not resume_text:
             return jsonify({"error": "Could not extract text from file"}), 400
 
-        print(f"✅ 成功提取文本，长度: {len(resume_text)}")
+        print(f"Successfully extracted text, length: {len(resume_text)}")
 
-        # 4. 快速检索
+        # 4. Fast retrieval
         results = perform_vector_search(resume_text, top_k=5)
 
         return jsonify({
@@ -159,50 +159,50 @@ def recommend_from_file():
         })
 
     except Exception as e:
-        print(f"⚠️ 处理过程异常: {e}")
+        print(f"Error during processing: {e}")
         import traceback
-        traceback.print_exc() # 打印完整堆栈，方便看哪一行错了
+        traceback.print_exc() # Print full stack trace to see which line failed
         return jsonify({"error": str(e)}), 500
 
 
-# --- 接口 D: AI 解释 (前端：拿到列表后，异步/懒加载调用) ---
+# --- Interface D: AI explanation (frontend: called asynchronously/lazy-loaded after getting list) ---
 @app.route('/rag/explain_job', methods=['POST'])
 def explain_job_endpoint():
     data = request.json
-    # 前端必须把这两样东西传回来，因为服务器是无状态的
+    # Frontend must pass these two things back, because server is stateless
     job_desc = data.get('job_description', '')
-    user_query = data.get('user_query', '') # 用户的搜索词 或 简历全文
+    user_query = data.get('user_query', '') # User's search term or full resume text
 
     if not job_desc or not user_query:
         return jsonify({"error": "Missing params"}), 400
 
-    print(f"🤖 [AI] 正在生成解释...", flush=True)
+    print(f"[AI] Generating explanation...", flush=True)
 
     try:
-        # 构造 Prompt：限制字数，聚焦匹配点
+        # Construct Prompt: limit word count, focus on matching points
         prompt = f"""
-        【用户背景】
-        {user_query[:600]}... (截取部分)
+        [User Background]
+        {user_query[:600]}... (truncated)
 
-        【目标岗位】
-        {job_desc[:800]}... (截取部分)
+        [Target Position]
+        {job_desc[:800]}... (truncated)
 
-        【任务】
-        请用英语，用一句话（50字以内）像专业的猎头顾问一样，告诉用户为什么这个岗位适合他。
-        请直接输出结论，不要说“根据您的简历”之类的废话。
+        [Task]
+        Please use English, in one sentence (within 50 words) like a professional headhunter consultant, tell the user why this position is suitable for them.
+        Please output the conclusion directly, do not say things like "based on your resume".
         """
 
-        # 调用 LLM
+        # Call LLM
         response = llm.invoke([
-            SystemMessage(content="你是一个精准、干练的职业顾问。"),
+            SystemMessage(content="You are a precise and concise career consultant."),
             HumanMessage(content=prompt)
         ])
 
         return jsonify({"ai_reason": response.content})
 
     except Exception as e:
-        print(f"⚠️ AI 生成失败: {e}", flush=True)
-        return jsonify({"ai_reason": "AI 分析暂时不可用（额度不足或网络波动）"})
+        print(f"AI generation failed: {e}", flush=True)
+        return jsonify({"ai_reason": "AI analysis temporarily unavailable (quota insufficient or network fluctuation)"})
 
 
 if __name__ == '__main__':

@@ -38,26 +38,26 @@ def save_jobs_batch_to_backend(jobs_data):
         response = requests.post(BACKEND_INTAKE_URL, json=jobs_data, headers=headers)
 
         if response.status_code == 200 or response.status_code == 201:
-            # --- 修复 1: 先获取 json 结果 ---
+            # --- Fix 1: Get json result first ---
             result = response.json()
 
-            # 你的 Java 代码返回的是 Map.of("jobs", savedJobs, ...)
+            # Your Java code returns Map.of("jobs", savedJobs, ...)
             if isinstance(result, dict) and 'jobs' in result:
                 saved_jobs = result['jobs']
             elif isinstance(result, list):
                 saved_jobs = result
             else:
-                print(f"⚠️ Unexpected response format from Java: {result.keys() if isinstance(result, dict) else result}")
+                print(f"Unexpected response format from Java: {result.keys() if isinstance(result, dict) else result}")
                 return []
 
-            print(f"✅ Java Backend saved successfully. Received {len(saved_jobs)} IDs.")
+            print(f"Java Backend saved successfully. Received {len(saved_jobs)} IDs.")
             return saved_jobs
         else:
-            print(f"❌ Java Batch save failed: {response.status_code}, {response.text}")
+            print(f"Java Batch save failed: {response.status_code}, {response.text}")
             return []
 
     except Exception as e:
-        print(f"❌ Error sending to Java Backend: {e}")
+        print(f"Error sending to Java Backend: {e}")
         return []
 
 def sync_jobs_to_vector_db(saved_jobs_from_java):
@@ -65,7 +65,7 @@ def sync_jobs_to_vector_db(saved_jobs_from_java):
     if not saved_jobs_from_java:
         return
 
-    print(f"🔄 Syncing {len(saved_jobs_from_java)} jobs to Vector DB...")
+    print(f"Syncing {len(saved_jobs_from_java)} jobs to Vector DB...")
 
     vector_payload = {"jobs": []}
     for job in saved_jobs_from_java:
@@ -81,39 +81,39 @@ def sync_jobs_to_vector_db(saved_jobs_from_java):
     try:
         response = requests.post(AI_SERVICE_URL, json=vector_payload)
         if response.status_code == 200:
-            print(f"✅ Vector DB sync successful!")
+            print(f"Vector DB sync successful!")
         else:
-            print(f"❌ Vector DB sync failed: {response.text}")
+            print(f"Vector DB sync failed: {response.text}")
     except Exception as e:
-        print(f"❌ Error syncing to Vector DB: {e}")
+        print(f"Error syncing to Vector DB: {e}")
 
 import feedparser
 import time
-from bs4 import BeautifulSoup # 用来清理 description 里的 HTML 标签
+from bs4 import BeautifulSoup # Used to clean HTML tags in description
 
 RSS_URL = "https://weworkremotely.com/remote-jobs.rss"
 
 def scrape_jobs():
-    print("🚀 Starting RSS Scraper (Smart Mode)...")
+    print("Starting RSS Scraper (Smart Mode)...")
     all_jobs_data = []
 
-    # 1. 直接请求 RSS XML 数据
+    # 1. Directly request RSS XML data
     feed = feedparser.parse(RSS_URL)
-    print(f"✅ Found {len(feed.entries)} jobs in RSS feed.")
+    print(f"Found {len(feed.entries)} jobs in RSS feed.")
 
-    # 2. 遍历数据
-    for entry in feed.entries: # 演示用，取前20个
+    # 2. Iterate through data
+    for entry in feed.entries: # For demo, take first 20
         try:
             print(f"Parsing: {entry.title}")
 
-            # 清洗 Description (RSS 里的 description 通常带有 HTML)
+            # Clean Description (RSS descriptions usually contain HTML)
             raw_desc = entry.get('summary', '') or entry.get('description', '')
             clean_desc = BeautifulSoup(raw_desc, "html.parser").get_text(separator="\n").strip()
 
             job_data = {
                 "title": entry.title,
-                "company": entry.get('author', 'Unknown Company'), # RSS 里 author 字段通常是公司名
-                "location": "Remote", # WWR 主要是 Remote，RSS 可能不含具体 location，可设为默认
+                "company": entry.get('author', 'Unknown Company'), # In RSS, author field is usually company name
+                "location": "Remote", # WWR is mainly Remote, RSS may not contain specific location, can set as default
                 "description": clean_desc,
                 "url": entry.link,
                 "source": "We Work Remotely (RSS)"
@@ -123,9 +123,9 @@ def scrape_jobs():
         except Exception as e:
             print(f"Error parsing entry: {e}")
 
-    # 3. 批量保存
+    # 3. Batch save
     if all_jobs_data:
-        print(f"\n📦 Batch saving {len(all_jobs_data)} jobs to backend...")
+        print(f"\nBatch saving {len(all_jobs_data)} jobs to backend...")
         saved_jobs_with_ids = save_jobs_batch_to_backend(all_jobs_data)
         if saved_jobs_with_ids:
             sync_jobs_to_vector_db(saved_jobs_with_ids)
@@ -139,11 +139,11 @@ def scrape_jobs():
 #     all_jobs_data = []
 #
 #     with sync_playwright() as p:
-#         # --- 修复 2: 改为 headless=False (有头模式) ---
-#         # 在本地运行时，这是绕过 Cloudflare 最稳妥的方法
+#         # --- Fix 2: Change to headless=False (headed mode) ---
+#         # When running locally, this is the most reliable way to bypass Cloudflare
 #         browser = p.chromium.launch(
 #             headless=True,
-#             # headless=False,  # <--- 关键修改：弹出浏览器窗口
+#             # headless=False,  # <--- Key modification: pop up browser window
 #             args=[
 #                 "--disable-blink-features=AutomationControlled",
 #                 "--no-sandbox",
@@ -153,7 +153,7 @@ def scrape_jobs():
 #         user_agent = random.choice(USER_AGENTS)
 #         context = browser.new_context(
 #             user_agent=user_agent,
-#             viewport={'width': 1280, 'height': 800} # 设置一个常见的窗口大小
+#             viewport={'width': 1280, 'height': 800} # Set a common window size
 #         )
 #
 #         context.add_init_script("""
@@ -166,14 +166,14 @@ def scrape_jobs():
 #
 #         try:
 #             print(f"Visiting list page: {TARGET_URL}")
-#             # 有头模式下，Cloudflare 验证通常会自动通过
+#             # In headed mode, Cloudflare verification usually passes automatically
 #             page.goto(TARGET_URL, wait_until="domcontentloaded", timeout=60000)
 #             time.sleep(random.uniform(3, 5))
 #
 #             job_listings = page.query_selector_all(".new-listing-container")
 #             print(f"Found {len(job_listings)} jobs on this page.")
 #
-#             # 为了调试，只爬前 3 个，避免刷太快被封 IP
+#             # For debugging, only scrape first 3, avoid being IP banned for scraping too fast
 #             # job_listings = job_listings[:3]
 #
 #             base_url = "https://weworkremotely.com"
@@ -203,11 +203,11 @@ def scrape_jobs():
 #
 #                     detail_page = context.new_page()
 #
-#                     # 加载详情页
+#                     # Load detail page
 #                     detail_page.goto(job_detail_url, wait_until="domcontentloaded", timeout=60000)
 #
-#                     # 智能等待：如果有 Cloudflare，有头模式下通常会自动跳转
-#                     # 我们只需要检查最终的元素是否出现
+#                     # Smart wait: if there's Cloudflare, headed mode usually auto-redirects
+#                     # We just need to check if the final element appears
 #                     possible_selectors = [
 #                         ".lis-container__job__content__description",
 #                         "#job-listing-show-container",
@@ -218,7 +218,7 @@ def scrape_jobs():
 #                     full_description = ""
 #                     for selector in possible_selectors:
 #                         try:
-#                             # 增加等待时间到 5 秒
+#                             # Increase wait time to 5 seconds
 #                             element = detail_page.wait_for_selector(selector, timeout=5000, state="attached")
 #                             if element:
 #                                 full_description = element.inner_text().strip()
@@ -228,7 +228,7 @@ def scrape_jobs():
 #                             continue
 #
 #                     if not full_description:
-#                         # 如果还是拿不到，说明可能是需要登录或者被强制拦截了
+#                         # If still can't get it, it might need login or be forcibly blocked
 #                         print(f"Warning: Empty description. Title: {detail_page.title()}")
 #
 #                     detail_page.close()
@@ -246,12 +246,12 @@ def scrape_jobs():
 #                     else:
 #                         print(f"Skipping job {i} due to empty description.")
 #
-#                     # 模拟人类阅读时间
+#                     # Simulate human reading time
 #                     time.sleep(random.uniform(2, 4))
 #
 #                 except Exception as e:
 #                     print(f"Error parsing job {i}: {e}")
-#                     # 确保出错时关闭页面
+#                     # Ensure page is closed on error
 #                     if 'detail_page' in locals():
 #                         try: detail_page.close()
 #                         except: pass

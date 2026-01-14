@@ -53,7 +53,7 @@ services:
       - DB_HOST=db
       - DB_NAME=jobtracker
     ports:
-      - "5001:5000"  # 把电脑的 5001 映射到容器的 5000
+      - "5001:5000"  # Map host port 5001 to container port 5000
 
   # ========================================================
   # == Dependency Services (from docker-compose.yml, for local testing only) ==

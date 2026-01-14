@@ -8,7 +8,7 @@ beautifulsoup4
 lxml
 feedparser
 
-# --- RAG & Agent 核心库 ---
+# --- RAG & Agent core libraries ---
 langchain==0.2.16
 langchain-community==0.2.16
 langchain-core==0.2.43
@@ -18,8 +18,8 @@ langchain-postgres==0.0.9
 langgraph==0.2.53
 psycopg[binary]
 psycopg2-binary
-tiktoken        # 计算 Token 数量
-python-dotenv   # 管理环境变量
+tiktoken        # Calculate token count
+python-dotenv   # Manage environment variables
 
 # --- RAG & Agent ---
 langchain

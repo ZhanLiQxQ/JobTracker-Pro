@@ -31,21 +31,21 @@ public class JobController {
     @GetMapping
     public ResponseEntity<List<Job>> getAllJobs(
             @RequestParam(required = false) String query,
-            Authentication authentication) { // 注入 Authentication 以便未来扩展
+            Authentication authentication) { // Inject Authentication for future extension
 
         List<Job> jobs;
 
-        // 1. 路由逻辑：有搜索词走混合搜索，没有走普通列表
+        // 1. Routing logic: if there's a search term, use hybrid search, otherwise use normal list
         if (query != null && !query.trim().isEmpty()) {
-            // 这里调用我们在 Service 接口里新加的 searchHybridJobs
+            // Call the searchHybridJobs method we added in the Service interface
             jobs = jobService.searchHybridJobs(query);
         } else {
             jobs = jobService.getAllPublicJobs();
         }
         System.out.println("Deploy Test v1");
 
-        // (可选优化) 如果你想在后端处理 isFavorite，可以在这里调用 jobService.attachFavorites(jobs, user)
-        // 但为了配合你现有的前端逻辑（前端发第二次请求查收藏），这里直接返回 jobs 即可
+        // (Optional optimization) If you want to handle isFavorite in the backend, you can call jobService.attachFavorites(jobs, user) here
+        // But to match your existing frontend logic (frontend sends second request to check favorites), just return jobs directly here
 
         return ResponseEntity.ok(jobs);
     }
@@ -84,7 +84,7 @@ public class JobController {
 
 
 
-    // 👇 *** New file upload interface *** 👇
+    // New file upload interface
     @PostMapping("/recommend-file")
     public ResponseEntity<?> getRecommendationsFromFile(
             @RequestParam("resume") MultipartFile file,

@@ -35,14 +35,14 @@ public class JobServiceImpl implements JobService {
         return jobRepository.findAll();
     }
 
-    // 注入 RestTemplate (建议在 Config 类里定义 Bean，或者这里直接 new)
+    // Inject RestTemplate (recommend defining Bean in Config class, or directly new here)
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // Python AI 服务的地址，从配置文件读取，默认 localhost:5001
+    // Python AI service URL, read from config file, default localhost:5001
     @Value("${ai.service.url:http://localhost:5001}")
     private String aiServiceUrl;
 
-    // --- 1. 保持原有的 SQL 搜索作为底层能力 (改为 private 或保留 public 供内部调用) ---
+    // --- 1. Keep original SQL search as underlying capability (change to private or keep public for internal calls) ---
     public List<Job> searchJobsSql(String query) {
         if (query == null || query.trim().isEmpty()) {
             return jobRepository.findAll();
@@ -58,9 +58,9 @@ public class JobServiceImpl implements JobService {
         return jobRepository.findAll(spec);
     }
 
-    // --- 2. 新增：混合搜索 (面试核心亮点) ---
+    // --- 2. New: Hybrid search (core interview highlight) ---
     @Override
-    // 注意：混合搜索通常不建议缓存整个结果，因为涉及 AI 和个性化，或者设置较短的过期时间
+    // Note: Hybrid search usually doesn't recommend caching entire results, because it involves AI and personalization, or set a shorter expiration time
     public List<Job> searchHybridJobs(String query) {
         if (query == null || query.trim().isEmpty()) {
             return getAllPublicJobs();
@@ -68,9 +68,9 @@ public class JobServiceImpl implements JobService {
 
         long start = System.currentTimeMillis();
 
-        // [面试亮点] 异步编排：同时发起 SQL 和 AI 请求
+        // [Interview highlight] Async orchestration: simultaneously initiate SQL and AI requests
 
-        // 任务 A: SQL 搜索
+        // Task A: SQL search
         CompletableFuture<List<Job>> sqlTask = CompletableFuture.supplyAsync(() -> {
             return searchJobsSql(query);
         }).exceptionally(ex -> {
@@ -78,27 +78,27 @@ public class JobServiceImpl implements JobService {
             return Collections.emptyList();
         });
 
-        // 任务 B: AI 语义搜索
+        // Task B: AI semantic search
         CompletableFuture<List<Long>> aiTask = CompletableFuture.supplyAsync(() -> {
             return fetchJobIdsFromAI(query);
         }).exceptionally(ex -> {
             System.err.println("AI Service failed (Graceful Degradation): " + ex.getMessage());
-            return Collections.emptyList(); // [面试亮点] 降级策略：AI 挂了不影响主流程
+            return Collections.emptyList(); // [Interview highlight] Degradation strategy: AI failure doesn't affect main flow
         });
 
-        // 等待两者完成
+        // Wait for both to complete
         CompletableFuture.allOf(sqlTask, aiTask).join();
 
         try {
             List<Job> sqlJobs = sqlTask.get();
             List<Long> aiJobIds = aiTask.get();
 
-            // 如果 AI 没结果，直接返回 SQL 结果 (避免计算 RRF)
+            // If AI has no results, directly return SQL results (avoid calculating RRF)
             if (aiJobIds.isEmpty()) {
                 return sqlJobs;
             }
 
-            // [面试亮点] 执行 RRF 融合算法
+            // [Interview highlight] Execute RRF fusion algorithm
             List<Job> rankedJobs = applyRRF(sqlJobs, aiJobIds);
 
             System.out.println("Hybrid Search took: " + (System.currentTimeMillis() - start) + "ms");
@@ -106,20 +106,20 @@ public class JobServiceImpl implements JobService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            // 兜底：万一合并逻辑出错，返回 SQL 结果
+            // Fallback: if merge logic fails, return SQL results
             return searchJobsSql(query);
         }
     }
 
-    // --- 3. 辅助方法：调用 Python AI ---
+    // --- 3. Helper method: call Python AI ---
     private List<Long> fetchJobIdsFromAI(String query) {
         String url = aiServiceUrl + "/rag/search_only";
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("query", query);
-        requestBody.put("k", 20); // 获取前 20 个语义相关
+        requestBody.put("k", 20); // Get top 20 semantically related
 
         try {
-            // 定义一个简单的内部类来接 Python 的返回值
+            // Define a simple inner class to receive Python return value
             ResponseEntity<AISearchResponse> response = restTemplate.postForEntity(
                     url, requestBody, AISearchResponse.class
             );
@@ -135,39 +135,39 @@ public class JobServiceImpl implements JobService {
         return Collections.emptyList();
     }
 
-    // --- 4. 辅助方法：RRF 算法实现 ---
+    // --- 4. Helper method: RRF algorithm implementation ---
     private List<Job> applyRRF(List<Job> sqlJobs, List<Long> aiJobIds) {
         Map<Long, Double> scores = new HashMap<>();
-        int k = 60; // RRF 常数
+        int k = 60; // RRF constant
 
-        // 计算 SQL 分数
+        // Calculate SQL scores
         for (int i = 0; i < sqlJobs.size(); i++) {
             long id = sqlJobs.get(i).getId();
             scores.put(id, scores.getOrDefault(id, 0.0) + (1.0 / (k + i + 1)));
         }
 
-        // 计算 AI 分数
+        // Calculate AI scores
         for (int i = 0; i < aiJobIds.size(); i++) {
             long id = aiJobIds.get(i);
             scores.put(id, scores.getOrDefault(id, 0.0) + (1.0 / (k + i + 1)));
         }
 
-        // 重新拉取所有涉及的 Job (为了获取 AI 搜出来但 SQL 没搜出来的 Job 详情)
-        // 这一步可以用 findAllById 优化
+        // Re-fetch all involved Jobs (to get job details that AI found but SQL didn't)
+        // This step can be optimized with findAllById
         List<Long> allIds = new ArrayList<>(scores.keySet());
         List<Job> allJobs = jobRepository.findAllById(allIds);
         Map<Long, Job> jobMap = allJobs.stream().collect(Collectors.toMap(Job::getId, j -> j));
 
-        // 排序并返回
+        // Sort and return
         return scores.entrySet().stream()
-                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed()) // 分数高在前
+                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed()) // Higher scores first
                 .map(entry -> jobMap.get(entry.getKey()))
-                .filter(java.util.Objects::nonNull) // 过滤掉数据库里可能不存在的脏数据
+                .filter(java.util.Objects::nonNull) // Filter out dirty data that may not exist in database
                 .collect(Collectors.toList());
     }
 
-    // --- DTO: 用来接 Python 返回值 ---
-    // 可以放在单独文件，也可以作为内部静态类
+    // --- DTO: Used to receive Python return value ---
+    // Can be placed in a separate file, or as an inner static class
     private static class AISearchResponse {
         public List<ResultItem> results;
         public static class ResultItem {

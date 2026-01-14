@@ -15,7 +15,7 @@ export default defineConfig({
       '/ai': {
           target: 'http://localhost:5001',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/ai/, '') // 本地开发也模拟 Nginx 去掉 /ai
+          rewrite: (path) => path.replace(/^\/ai/, '') // Local development also simulates Nginx removing /ai
       }
     }
   }

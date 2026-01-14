@@ -112,11 +112,11 @@ class JobService {
 
     return recommendedJobs;
   }
-  // --- 新增：调用 Python 接口上传简历 ---
-  // 返回值不仅包含 Job 数组，还包含简历全文文本，供后续 AI 分析使用
+  // New: Call Python interface to upload resume
+  // Return value not only contains Job array, but also full resume text for subsequent AI analysis
   async uploadResumeToAI(file: File): Promise<{ jobs: Job[], resumeText: string }> {
     const formData = new FormData();
-    formData.append('resume_file', file); // 对应 Python 的 request.files['resume_file']
+    formData.append('resume_file', file); // Corresponds to Python's request.files['resume_file']
 
     const response = await fetch(`${AI_SERVICE_URL}/recommend_file`, {
       method: 'POST',
@@ -130,27 +130,27 @@ class JobService {
 
     const data = await response.json();
 
-    // 映射 Python 数据结构 -> 前端 Job 结构
+    // Map Python data structure -> Frontend Job structure
     const mappedJobs: Job[] = data.results.map((item: any) => ({
       id: item.job_id,
       title: item.title,
-      company: "Unknown Company", // Python 目前没爬取公司名，暂时写死
-      location: "Remote/Hybrid",  // Python 目前没爬取地点
+      company: "Unknown Company", // Python currently doesn't scrape company name, temporarily hardcoded
+      location: "Remote/Hybrid",  // Python currently doesn't scrape location
       source: item.source || "AI Match",
       url: item.url,
       description: item.description,
       matchScore: item.match_score,
-      aiReason: null, // 初始化为 null，表示等待 AI 生成
-      isFavorite: false // 默认为 false，如果需要同步状态需额外调用 Java 接口
+      aiReason: null, // Initialize as null, indicating waiting for AI generation
+      isFavorite: false // Default to false, if need to sync state need to call Java interface separately
     }));
 
     return {
       jobs: mappedJobs,
-      resumeText: data.full_resume_text // 这是关键，下一步要传回去
+      resumeText: data.full_resume_text // This is key, need to pass back in next step
     };
   }
 
-  // --- 新增：单独请求 AI 解释 ---
+  // New: Separately request AI explanation
   async getAIExplanation(jobDescription: string, resumeText: string): Promise<string> {
     const response = await fetch(`${AI_SERVICE_URL}/rag/explain_job`, {
       method: 'POST',

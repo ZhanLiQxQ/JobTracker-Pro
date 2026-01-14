@@ -37,7 +37,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onFavoriteChange }) => {
   };
 
   return (
-      // 1. 这是主容器开始
+      // 1. Main container starts here
       <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200 border border-gray-200 flex flex-col h-full">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
@@ -88,7 +88,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onFavoriteChange }) => {
           )}
         </div>
 
-        {/* 2. 让描述区域占据剩余空间 (flex-grow) */}
+        {/* 2. Let description area occupy remaining space (flex-grow) */}
         {job.description && (
             <div className="mb-3 flex-grow">
               <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
@@ -122,22 +122,22 @@ const JobCard: React.FC<JobCardProps> = ({ job, onFavoriteChange }) => {
             </div>
         )}
 
-        {/* --- 新增：AI 推荐理由区域 --- */}
-        {/* 3. 只有当 matchScore 存在时才显示这个区域 (避免普通列表也显示 loading) */}
+        {/* New: AI recommendation reason area */}
+        {/* 3. Only show this area when matchScore exists (avoid showing loading in normal list) */}
         {job.matchScore !== undefined && (
             <div className="mt-4 pt-3 border-t border-dashed border-gray-200 bg-blue-50 -mx-6 -mb-6 p-4 rounded-b-lg">
               <div className="flex items-start gap-3">
-                <div className="text-xl">🤖</div>
+                <div className="text-xl">AI</div>
                 <div className="flex-1">
                   <h4 className="text-xs font-bold text-blue-800 mb-1 uppercase tracking-wide">AI Recommendation Reason</h4>
 
                   {job.aiReason ? (
-                      // 状态 A: 加载完成，显示文字
+                      // State A: Loading complete, show text
                       <p className="text-sm text-blue-900 leading-relaxed animate-fade-in">
                         {job.aiReason}
                       </p>
                   ) : (
-                      // 状态 B: 加载中，显示骨架屏动画
+                      // State B: Loading, show skeleton animation
                       <div className="space-y-2 animate-pulse mt-1">
                         <div className="h-2 bg-blue-200 rounded w-3/4"></div>
                         <div className="h-2 bg-blue-200 rounded w-1/2"></div>
@@ -148,7 +148,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onFavoriteChange }) => {
             </div>
         )}
 
-      </div> // 4. 这里的闭合 div 必须在最后面！
+      </div> // 4. Closing div must be at the end!
   );
 };
 

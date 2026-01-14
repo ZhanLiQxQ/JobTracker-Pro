@@ -2,7 +2,7 @@ package com.jobtracker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+@EnableCaching
 @SpringBootApplication
 public class BackendApplication {
 

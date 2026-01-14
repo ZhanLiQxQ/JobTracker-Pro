@@ -18,5 +18,5 @@ COPY *.py .
 
 EXPOSE 5000
 
-# 6. 启动命令
+# 6. Startup command
 CMD ["python", "api.py"]

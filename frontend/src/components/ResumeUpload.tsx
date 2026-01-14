@@ -67,7 +67,7 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
       setError('Please select a file first');
       return;
     }
-// 注意：如果是纯测试，暂时可以注释掉 authService 检查
+// Note: If it's pure testing, you can temporarily comment out authService check
     // if (!authService.isAuthenticated()) ...
 
     setUploading(true);
@@ -75,26 +75,26 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
     setRecommendedJobs([]);
 
     try {
-      // 1. 第一阶段：快速获取列表 (调用 Python /recommend_file)
-      // 返回的 jobs 里 aiReason 都是 null
+      // 1. Phase 1: Quickly get list (call Python /recommend_file)
+      // aiReason in returned jobs are all null
       const { jobs, resumeText } = await jobService.uploadResumeToAI(selectedFile);
 
-      // 立即渲染列表，用户看到岗位卡片和 "Loading..." 动画
+      // Immediately render list, user sees job cards and "Loading..." animation
       setRecommendedJobs(jobs);
-      setUploading(false); // 停止整体 Loading
+      setUploading(false); // Stop overall Loading
 
-      // 2. 第二阶段：懒加载 AI 解释
-      // 遍历所有岗位，并发起请求
+      // 2. Phase 2: Lazy load AI explanations
+      // Iterate through all jobs and initiate requests
       jobs.forEach(async (job) => {
         try {
-          // 调用 Python /rag/explain_job
+          // Call Python /rag/explain_job
           const reason = await jobService.getAIExplanation(
             job.description || "",
             resumeText
           );
 
-          // 3. 第三阶段：更新单个 Job 的状态
-          // 使用函数式更新，确保在闭包中拿到最新的 state
+          // 3. Phase 3: Update individual Job state
+          // Use functional update to ensure getting latest state in closure
           setRecommendedJobs(prevJobs =>
             prevJobs.map(j =>
               j.id === job.id ? { ...j, aiReason: reason } : j

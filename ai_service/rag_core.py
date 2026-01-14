@@ -8,18 +8,18 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 
-# 1. 配置数据库连接 (复用你 docker-compose 里的配置)
+# 1. Configure database connection (reuse configuration from docker-compose)
 db_user = os.getenv("DB_USERNAME", "jobtracker")
 db_password = os.getenv("DB_PASSWORD", "password")
 db_host = os.getenv("DB_HOST", "db")
 db_name = os.getenv("DB_NAME", "jobtracker")
 
 DB_CONNECTION = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:5432/{db_name}"
-# 2. 初始化模型
+# 2. Initialize models
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
-# 3. 连接向量数据库 (LangChain 会自动帮你建表！)
+# 3. Connect to vector database (LangChain will automatically create tables for you!)
 vector_store = PGVector(
     embeddings=embeddings,
     collection_name="job_resume_vectors",
@@ -27,20 +27,20 @@ vector_store = PGVector(
     use_jsonb=True,
 )
 
-# --- 修改点 1: 专门用于存 JD 的函数 ---
+# --- Modification point 1: Function specifically for storing job descriptions ---
 def ingest_jobs_to_vector_db(jobs_data: list):
     """
-    功能：把爬虫爬到的 JD 批量存入向量库
-    入参：jobs_data 是一个列表，每个元素是 dict: {'id': 1, 'title': '...', 'description': '...'}
+    Function: Batch store job descriptions scraped by crawler into vector database
+    Input: jobs_data is a list, each element is a dict: {'id': 1, 'title': '...', 'description': '...'}
     """
     documents = []
     for job in jobs_data:
-        # 1. 构造存入向量库的内容：通常是 Title + Description
-        # 这样搜索时既能搜到标题也能搜到内容
+        # 1. Construct content to store in vector database: usually Title + Description
+        # This way searches can find both title and content
         full_text = f"Job Title: {job['title']}\nJob Description: {job['description']}"
 
-        # 2. 构造元数据 (Metadata)：存 ID 和其他过滤字段
-        # 这一点至关重要！以后你才能用 SQL 过滤 "created_at > 7 days"
+        # 2. Construct metadata: store ID and other filter fields
+        # This is crucial! Later you can use SQL to filter like "created_at > 7 days"
         metadata = {
             "job_id": job['id'],
             "source": job.get('source', 'unknown'),
@@ -51,25 +51,25 @@ def ingest_jobs_to_vector_db(jobs_data: list):
         documents.append(doc)
 
     if documents:
-        # 批量写入，效率更高
+        # Batch write for better efficiency
         vector_store.add_documents(documents)
-        print(f"✅ 成功存入 {len(documents)} 个岗位到 pgvector")
+        print(f"Successfully stored {len(documents)} jobs to pgvector")
 
-# --- 修改点 2: 简历匹配函数 (Job Matching) ---
+# --- Modification point 2: Resume matching function (Job Matching) ---
 def match_resume_to_jobs(resume_text: str, top_k=5):
     """
-    功能：拿简历去搜职位
+    Function: Search for jobs using resume
     """
-    # 1. 直接把简历文本作为“查询词”
-    # 向量数据库会自动把这就一大段话变成向量，去库里找相似的 JD
+    # 1. Directly use resume text as "query"
+    # Vector database will automatically convert this large text into vectors and find similar job descriptions in the database
     results = vector_store.similarity_search_with_score(resume_text, k=top_k)
 
     matches = []
     for doc, score in results:
         matches.append({
             "job_id": doc.metadata["job_id"],
-            "title": doc.page_content.split('\n')[0], # 简单提取标题
-            "score": score, # 相似度分数
+            "title": doc.page_content.split('\n')[0], # Simple title extraction
+            "score": score, # Similarity score
             "url": doc.metadata["url"]
         })
 
