@@ -126,9 +126,11 @@ def scrape_jobs():
     # 3. 批量保存
     if all_jobs_data:
         print(f"\n📦 Batch saving {len(all_jobs_data)} jobs to backend...")
-        save_jobs_batch_to_backend(all_jobs_data)
+        save_jobs_batch_to_backend(all_jobs_data)#         if saved_jobs_with_ids:
+        if saved_jobs_with_ids:
+            sync_jobs_to_vector_db(saved_jobs_with_ids)
     else:
-        print("No jobs found.")
+        print("\nNo job data was scraped")
 
 # def scrape_jobs():
 #     """Main scraper function"""
