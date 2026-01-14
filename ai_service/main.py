@@ -102,7 +102,7 @@ def scrape_jobs():
     print(f"✅ Found {len(feed.entries)} jobs in RSS feed.")
 
     # 2. 遍历数据
-    for entry in feed.entries[:20]: # 演示用，取前20个
+    for entry in feed.entries: # 演示用，取前20个
         try:
             print(f"Parsing: {entry.title}")
 
@@ -126,7 +126,7 @@ def scrape_jobs():
     # 3. 批量保存
     if all_jobs_data:
         print(f"\n📦 Batch saving {len(all_jobs_data)} jobs to backend...")
-        saved_jobs_with_ids = save_jobs_batch_to_backend(all_jobs_data)#         if saved_jobs_with_ids:
+        saved_jobs_with_ids = save_jobs_batch_to_backend(all_jobs_data)
         if saved_jobs_with_ids:
             sync_jobs_to_vector_db(saved_jobs_with_ids)
     else:
