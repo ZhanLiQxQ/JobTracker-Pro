@@ -70,16 +70,21 @@ If you want to run this locally instead of visiting the live demo:
 
 ### **1\. Clone the Repository**
 
+```bash
 git clone \[https://github.com/ZhanLiQxQ/JobTracker-Pro\](https://github.com/ZhanLiQxQ/JobTracker-Pro)  
 cd JobTracker-Pro
+```
 
 ### **2\. Configure Environment Variables**
 
 **⚠️ Important**: Create a .env file in the project root before starting services.
 
+```bash
 touch .env
+```
 
 Add the following configuration (adjust passwords for production):
+
 ```bash
 
 # Database Configuration
@@ -111,8 +116,8 @@ docker-compose up -d --build
 
 ### 4. Initialize Data
 Run the scraper inside the container to fetch real-time jobs and populate the database:
-```bash
 
+```bash
 docker exec -it jobtracker-pro-ai_service-1 python main.py
 ```
 
