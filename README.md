@@ -4,7 +4,7 @@
 
 It implements a **Hybrid Search Engine** combining SQL-based keyword filtering with **RAG (Retrieval-Augmented Generation)** vector search, fused via the **RRF (Reciprocal Rank Fusion)** algorithm. The system uses **Redis** caching to optimize performance.
 
-![Project Demo](./images/demo.gif)
+![Project Demo](./images/demo1.gif)
 
 
 ## ✨ Features
