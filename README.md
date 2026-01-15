@@ -80,6 +80,7 @@ cd JobTracker-Pro
 touch .env
 
 Add the following configuration (adjust passwords for production):
+```bash
 
 \# Database Configuration  
 DB\_URL=jdbc:postgresql://localhost:5432/jobtracker  
@@ -99,7 +100,7 @@ REDIS\_PORT=6379
 \# Service URLs  
 AI\_SERVICE\_URL=http://localhost:5000  
 WEB\_CLIENT\_BASE\_URL=http://localhost:8000
-
+```
 
 
 ### 3. Start Services
