@@ -82,24 +82,24 @@ touch .env
 Add the following configuration (adjust passwords for production):
 ```bash
 
-\# Database Configuration  
-DB\_URL=jdbc:postgresql://localhost:5432/jobtracker  
-DB\_USERNAME=admin  
-DB\_PASSWORD=your\_secure\_password
+# Database Configuration
+DB_URL=jdbc:postgresql://jobtracker-pro-db-1:5432/jobtracker
+DB_USERNAME=admin
+DB_PASSWORD=your_secure_password
 
-\# Security Configuration  
-SPRING\_SECURITY\_USER\_NAME=admin  
-SPRING\_SECURITY\_USER\_PASSWORD=your\_secure\_password  
-JWT\_SECRET=your-super-secure-jwt-secret-key-at-least-64-chars  
-INTERNAL\_API\_KEY=your-long-random-internal-api-key
+# Security Configuration
+SPRING_SECURITY_USER_NAME=admin
+SPRING_SECURITY_USER_PASSWORD=your_secure_password
+JWT_SECRET=your-super-secure-jwt-secret-key-at-least-64-chars
+INTERNAL_API_KEY=your-long-random-internal-api-key
 
-\# Redis Configuration  
-REDIS\_HOST=localhost  
-REDIS\_PORT=6379
+# Redis Configuration
+REDIS_HOST=jobtracker-pro-redis-1
+REDIS_PORT=6379
 
-\# Service URLs  
-AI\_SERVICE\_URL=http://localhost:5000  
-WEB\_CLIENT\_BASE\_URL=http://localhost:8000
+# Service URLs (Docker Network)
+AI_SERVICE_URL=http://jobtracker-pro-ai_service-1:5000
+WEB_CLIENT_BASE_URL=http://localhost:80
 ```
 
 
@@ -125,7 +125,6 @@ docker exec -it jobtracker-pro-ai_service-1 python main.py
 
 **Note**: The frontend is served through Nginx which acts as a reverse proxy, automatically routing `/api` requests to the backend service.
 
-## 📱 User Guide
 
 ## **📱 User Guide**
 
