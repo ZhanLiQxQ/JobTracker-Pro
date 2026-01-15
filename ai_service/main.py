@@ -111,8 +111,8 @@ def scrape_jobs():
             clean_desc = BeautifulSoup(raw_desc, "html.parser").get_text(separator="\n").strip()
 
             job_data = {
-                "title": entry.title,
-                "company": entry.get('author', 'Unknown Company'), # In RSS, author field is usually company name
+                "title": entry.title.split(':')[-1],
+                "company": entry.title.split(':')[0], # In RSS, author field is usually company name
                 "location": "Remote", # WWR is mainly Remote, RSS may not contain specific location, can set as default
                 "description": clean_desc,
                 "url": entry.link,
