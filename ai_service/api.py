@@ -8,7 +8,7 @@ import io
 import os
 
 # --- Import components from rag_core ---
-from rag_core import ingest_jobs_to_vector_db, vector_store, llm
+from rag_core import ingest_jobs_to_vector_db, vector_store, llm, agent_executor
 from langchain.schema import HumanMessage, SystemMessage
 
 app = Flask(__name__)
@@ -166,43 +166,54 @@ def recommend_from_file():
 
 
 # --- Interface D: AI explanation (frontend: called asynchronously/lazy-loaded after getting list) ---
+@app.route('/rag/agent_chat', methods=['POST'])
+def agent_chat_endpoint():
+    data = request.json
+    user_input = data.get('query', '')
+
+    # 接收前端传过来的解析后的简历文本（如果没有传，就是空字符串）
+    resume_text = data.get('resume_text', '')
+
+    if not user_input:
+        return jsonify({"error": "请输入你的求职需求"}), 400
+
+    # 动态组装 Agent 的输入：把简历作为上帝视角的“背景”塞进去
+    agent_input = user_input
+    if resume_text:
+        # 截取前 2000 个字符防超载
+        agent_input = f"以下是我的个人简历背景：\n---\n{resume_text[:2000]}\n---\n我的问题/需求是：{user_input}"
+
+    print(f"\n[Agent API] 收到用户请求，启动 Agent...", flush=True)
+
+    try:
+        # 启动 Agent
+        result = agent_executor.invoke({"input": agent_input})
+
+        return jsonify({
+            "status": "success",
+            "agent_response": result["output"]
+        })
+    except Exception as e:
+        print(f"Agent 执行失败: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+# --- (可选保留) 旧的单点解释接口，为了兼容老前端代码 ---
 @app.route('/rag/explain_job', methods=['POST'])
 def explain_job_endpoint():
     data = request.json
-    # Frontend must pass these two things back, because server is stateless
     job_desc = data.get('job_description', '')
-    user_query = data.get('user_query', '') # User's search term or full resume text
-
+    user_query = data.get('user_query', '')
     if not job_desc or not user_query:
         return jsonify({"error": "Missing params"}), 400
-
-    print(f"[AI] Generating explanation...", flush=True)
-
     try:
-        # Construct Prompt: limit word count, focus on matching points
-        prompt = f"""
-        [User Background]
-        {user_query[:600]}... (truncated)
-
-        [Target Position]
-        {job_desc[:800]}... (truncated)
-
-        [Task]
-        Please use English, in one sentence (within 50 words) like a professional headhunter consultant, tell the user why this position is suitable for them.
-        Please output the conclusion directly, do not say things like "based on your resume".
-        """
-
-        # Call LLM
-        response = llm.invoke([
-            SystemMessage(content="You are a precise and concise career consultant."),
-            HumanMessage(content=prompt)
-        ])
-
+        prompt = f"[User Background]\n{user_query[:600]}...\n[Target Position]\n{job_desc[:800]}...\nPlease use English, in one sentence (within 50 words) like a professional headhunter consultant, tell the user why this position is suitable for them."
+        response = llm.invoke([SystemMessage(content="You are a precise and concise career consultant."), HumanMessage(content=prompt)])
         return jsonify({"ai_reason": response.content})
-
     except Exception as e:
-        print(f"AI generation failed: {e}", flush=True)
-        return jsonify({"ai_reason": "AI analysis temporarily unavailable (quota insufficient or network fluctuation)"})
+        return jsonify({"ai_reason": "AI analysis temporarily unavailable"})
 
 
 if __name__ == '__main__':

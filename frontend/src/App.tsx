@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Job } from './types/Job';
-import { jobService } from './services/jobService';
+import { jobService, askAgentChat } from './services/jobService'; // 新增导入 askAgentChat
 import { authService } from './services/authService';
 import { User, AuthState, LoginRequest, RegisterRequest } from './types/Auth';
 import SearchForm from './components/SearchForm';
@@ -8,6 +8,7 @@ import JobCard from './components/JobCard';
 import LoginModal from './components/LoginModal';
 import FavoritesPage from './components/FavoritesPage';
 import ResumeUpload from './components/ResumeUpload';
+import ReactMarkdown from 'react-markdown'; // 新增导入 Markdown 渲染组件
 import './index.css';
 
 function App() {
@@ -17,6 +18,12 @@ function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState<'home' | 'favorites' | 'resume'>('home');
+
+  // ================= 新增：Agent 专属状态 =================
+  const [fullResumeText, setFullResumeText] = useState<string>('');
+  const [agentQuery, setAgentQuery] = useState<string>('Based on my resume, recommend some suitable jobs and analyze my skill gaps.'); // 默认英文Prompt
+  const [agentResponse, setAgentResponse] = useState<string>('');
+  const [isAgentLoading, setIsAgentLoading] = useState<boolean>(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -87,16 +94,27 @@ function App() {
     loadJobs();
   };
 
-  const navigateToHome = () => {
-    setCurrentPage('home');
-  };
+  const navigateToHome = () => setCurrentPage('home');
+  const navigateToFavorites = () => setCurrentPage('favorites');
+  const navigateToResume = () => setCurrentPage('resume');
 
-  const navigateToFavorites = () => {
-    setCurrentPage('favorites');
-  };
+  // ================= 新增：触发 Agent 对话的函数 =================
+  const handleAskAgent = async () => {
+    if (!agentQuery) return;
+    setIsAgentLoading(true);
+    setAgentResponse(''); // 每次提问清空上一次的回答
 
-  const navigateToResume = () => {
-    setCurrentPage('resume');
+    try {
+      // 调用我们在 jobService 中写好的 Agent 接口
+      const data = await askAgentChat(agentQuery, fullResumeText);
+      if (data && data.agent_response) {
+        setAgentResponse(data.agent_response);
+      }
+    } catch (error) {
+      setAgentResponse('AI Advisor is temporarily unavailable. Please try again later.');
+    } finally {
+      setIsAgentLoading(false);
+    }
   };
 
   // Render resume upload page
@@ -111,41 +129,16 @@ function App() {
                 <h1 className="text-xl font-semibold text-gray-900">JobTracker Pro</h1>
               </div>
               <div className="flex items-center space-x-4">
-                <button
-                  onClick={navigateToHome}
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Home
-                </button>
+                <button onClick={navigateToHome} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Home</button>
                 {user ? (
                   <>
-                    <button
-                      onClick={navigateToFavorites}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      My Favorites
-                    </button>
-                    <button
-                      onClick={navigateToResume}
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                    >
-                      Resume Match
-                    </button>
+                    <button onClick={navigateToFavorites} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">My Favorites</button>
+                    <button onClick={navigateToResume} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">Resume Match</button>
                     <span className="text-gray-700 text-sm">{user.email}</span>
-                    <button
-                      onClick={handleLogout}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Logout
-                    </button>
+                    <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                  >
-                    Login/Register
-                  </button>
+                  <button onClick={() => setShowLoginModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">Login/Register</button>
                 )}
               </div>
             </div>
@@ -153,7 +146,45 @@ function App() {
         </nav>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ResumeUpload onFavoriteChange={handleFavoriteChange} />
+
+          {/* ================= 新增：AI 职业顾问面板 (只有当解析出简历文本时才显示) ================= */}
+          {fullResumeText && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 shadow-sm">
+              <h2 className="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                 ✨ AI Career Advisor
+              </h2>
+
+              <div className="flex gap-2 mb-4">
+                <input
+                  type="text"
+                  className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={agentQuery}
+                  onChange={(e) => setAgentQuery(e.target.value)}
+                  placeholder="Ask AI: Should I apply for startups or big tech? What am I missing?"
+                />
+                <button
+                  onClick={handleAskAgent}
+                  disabled={isAgentLoading}
+                  className="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 transition-colors font-medium"
+                >
+                  {isAgentLoading ? 'Thinking...' : 'Ask AI'}
+                </button>
+              </div>
+
+              {/* 渲染 Agent 的回答 (使用 ReactMarkdown 支持加粗和列表渲染) */}
+              {agentResponse && (
+                <div className="bg-white p-5 rounded-md border border-blue-100 mt-4 prose max-w-none">
+                  <ReactMarkdown>{agentResponse}</ReactMarkdown>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 你的简历上传组件，新增了一个 onTextExtracted 属性用来接收子组件传上来的文本 */}
+          <ResumeUpload
+            onFavoriteChange={handleFavoriteChange}
+            onTextExtracted={(text) => setFullResumeText(text)}
+          />
         </div>
       </div>
     );
@@ -163,7 +194,6 @@ function App() {
   if (currentPage === 'favorites') {
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Navigation bar */}
         <nav className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -171,47 +201,21 @@ function App() {
                 <h1 className="text-xl font-semibold text-gray-900">JobTracker Pro</h1>
               </div>
               <div className="flex items-center space-x-4">
-                <button
-                  onClick={navigateToHome}
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Home
-                </button>
+                <button onClick={navigateToHome} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Home</button>
                 {user ? (
                   <>
-                    <button
-                      onClick={navigateToFavorites}
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                    >
-                      My Favorites
-                    </button>
-                    <button
-                      onClick={navigateToResume}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Resume Match
-                    </button>
+                    <button onClick={navigateToFavorites} className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">My Favorites</button>
+                    <button onClick={navigateToResume} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Resume Match</button>
                     <span className="text-gray-700 text-sm">{user.email}</span>
-                    <button
-                      onClick={handleLogout}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Logout
-                    </button>
+                    <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                  >
-                    Login/Register
-                  </button>
+                  <button onClick={() => setShowLoginModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">Login/Register</button>
                 )}
               </div>
             </div>
           </div>
         </nav>
-
         <FavoritesPage />
       </div>
     );
@@ -220,7 +224,6 @@ function App() {
   // Render main page
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation bar */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -228,81 +231,38 @@ function App() {
               <h1 className="text-xl font-semibold text-gray-900">JobTracker Pro</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <button
-                onClick={navigateToHome}
-                className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Home
-              </button>
+              <button onClick={navigateToHome} className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium">Home</button>
               {user ? (
                 <>
-                  <button
-                    onClick={navigateToFavorites}
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    My Favorites
-                  </button>
-                  <button
-                    onClick={navigateToResume}
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Resume Match
-                  </button>
+                  <button onClick={navigateToFavorites} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">My Favorites</button>
+                  <button onClick={navigateToResume} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Resume Match</button>
                   <span className="text-gray-700 text-sm">{user.email}</span>
-                  <button
-                    onClick={handleLogout}
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Logout
-                  </button>
+                  <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
                 </>
               ) : (
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  Login/Register
-                </button>
+                <button onClick={() => setShowLoginModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">Login/Register</button>
               )}
             </div>
           </div>
         </div>
       </nav>
 
-        {/* Main content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search form */}
         <SearchForm onSearch={handleSearch} />
-
-        {/* Error message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800">{error}</p>
-          </div>
-        )}
-
-        {/* Loading state */}
+        {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"><p className="text-red-800">{error}</p></div>}
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading...</p>
           </div>
         )}
-
-        {/* Job list */}
         {!loading && !error && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {jobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                onFavoriteChange={handleFavoriteChange}
-              />
+              <JobCard key={job.id} job={job} onFavoriteChange={handleFavoriteChange} />
             ))}
           </div>
         )}
-
-        {/* Empty state */}
         {!loading && !error && jobs.length === 0 && (
           <div className="text-center py-12">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
@@ -310,17 +270,9 @@ function App() {
           </div>
         )}
       </div>
-
-      {/* Login modal */}
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLogin={handleLogin}
-        onRegister={handleRegister}
-      />
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onLogin={handleLogin} onRegister={handleRegister} />
     </div>
   );
 }
 
 export default App;
-

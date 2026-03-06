@@ -34,7 +34,7 @@ def save_jobs_batch_to_backend(jobs_data):
             'Content-Type': 'application/json',
             'X-Internal-API-Key': INTERNAL_API_KEY
         }
-        print(f"📡 Sending {len(jobs_data)} jobs to Java Backend...")
+        print(f"Sending {len(jobs_data)} jobs to Java Backend...")
         response = requests.post(BACKEND_INTAKE_URL, json=jobs_data, headers=headers)
 
         if response.status_code == 200 or response.status_code == 201:
@@ -61,7 +61,6 @@ def save_jobs_batch_to_backend(jobs_data):
         return []
 
 def sync_jobs_to_vector_db(saved_jobs_from_java):
-    """Sync jobs to Python Vector DB (Missing in your snippet, added back)"""
     if not saved_jobs_from_java:
         return
 

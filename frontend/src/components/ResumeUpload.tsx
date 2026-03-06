@@ -6,9 +6,10 @@ import JobCard from './JobCard';
 
 interface ResumeUploadProps {
   onFavoriteChange?: () => void;
+  onTextExtracted?: (text: string) => void; // 新增：用于将解析的文本传给 App.tsx
 }
 
-const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
+const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange, onTextExtracted }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
@@ -55,7 +56,7 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     const file = e.dataTransfer.files?.[0];
     if (file) {
       handleFileSelect(file);
@@ -67,34 +68,34 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onFavoriteChange }) => {
       setError('Please select a file first');
       return;
     }
-// Note: If it's pure testing, you can temporarily comment out authService check
-    // if (!authService.isAuthenticated()) ...
 
     setUploading(true);
     setError(null);
     setRecommendedJobs([]);
 
     try {
-      // 1. Phase 1: Quickly get list (call Python /recommend_file)
-      // aiReason in returned jobs are all null
+      // 1. 调用你写好的 jobService 获取数据和简历文本
       const { jobs, resumeText } = await jobService.uploadResumeToAI(selectedFile);
 
-      // Immediately render list, user sees job cards and "Loading..." animation
+      // ==========================================
+      // 3. 核心修改：把拿到的简历文本传给外面的 App.tsx！
+      // ==========================================
+      if (onTextExtracted && resumeText) {
+        onTextExtracted(resumeText);
+      }
+
+      // Immediately render list
       setRecommendedJobs(jobs);
-      setUploading(false); // Stop overall Loading
+      setUploading(false);
 
       // 2. Phase 2: Lazy load AI explanations
-      // Iterate through all jobs and initiate requests
       jobs.forEach(async (job) => {
         try {
-          // Call Python /rag/explain_job
           const reason = await jobService.getAIExplanation(
             job.description || "",
             resumeText
           );
 
-          // 3. Phase 3: Update individual Job state
-          // Use functional update to ensure getting latest state in closure
           setRecommendedJobs(prevJobs =>
             prevJobs.map(j =>
               j.id === job.id ? { ...j, aiReason: reason } : j

@@ -1,10 +1,24 @@
 import { Job } from '../types/Job';
 import { authService } from './authService';
+import axios from 'axios';
 
 // Use relative path, access backend through Vite proxy
 const API_BASE_URL = '/api';
 // Python AI
 const AI_SERVICE_URL = '/ai';
+
+export const askAgentChat = async (query: string, resumeText: string) => {
+    try {
+        const response = await axios.post(`${AI_SERVICE_URL}/rag/agent_chat`, {
+            query: query,
+            resume_text: resumeText
+        });
+        return response.data; // 返回的数据里包含 agent_response
+    } catch (error) {
+        console.error("Agent chat failed:", error);
+        throw error;
+    }
+};
 
 
 class JobService {

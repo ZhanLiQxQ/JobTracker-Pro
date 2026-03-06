@@ -127,7 +127,9 @@ const JobCard: React.FC<JobCardProps> = ({ job, onFavoriteChange }) => {
         {job.matchScore !== undefined && (
             <div className="mt-4 pt-3 border-t border-dashed border-gray-200 bg-blue-50 -mx-6 -mb-6 p-4 rounded-b-lg">
               <div className="flex items-start gap-3">
-                <div className="text-xl">AI</div>
+                <div className="text-2xl" role="img" aria-label="AI Assistant">
+                      🤖
+                </div>
                 <div className="flex-1">
                   <h4 className="text-xs font-bold text-blue-800 mb-1 uppercase tracking-wide">AI Recommendation Reason</h4>
 
