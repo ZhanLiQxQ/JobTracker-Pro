@@ -17,26 +17,26 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # --- 1. 构建 Java Backend ---
+      # --- 1.Java Backend ---
       - name: Build and Push Backend
         uses: docker/build-push-action@v4
         with:
-          context: ./backend # 你的 Java 代码目录
+          context: ./backend
           file: ./backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/jobtracker-backend:latest
 
-      # --- 2. 构建 Python AI Service ---
+      # --- 2. Python AI Service ---
       - name: Build and Push AI Service
         uses: docker/build-push-action@v4
         with:
-          context: ./ai_service # 你的 Python 代码目录
+          context: ./ai_service
           file: ./ai_service/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/jobtracker-ai:latest
 
-      # --- 3. 构建 Frontend (React) ---
-      # 假设你的前端 Dockerfile 是把 npm build 后的产物放进 Nginx
+      # --- 3. Frontend (React) ---
+      # 前端 Dockerfile 把 npm build 后的产物放进 Nginx
       - name: Build and Push Frontend
         uses: docker/build-push-action@v4
         with:
