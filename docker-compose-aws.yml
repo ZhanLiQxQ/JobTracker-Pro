@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # ===============================================
+  # == 1. Your custom services (must match Docker Hub names) ==
+  # ===============================================
+  backend:
+    # Changed to your real Docker Hub address
+    image: leez331/jobtracker-backend:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_INTERNAL_API_KEY=${APP_INTERNAL_API_KEY}
+      - AI_SERVICE_URL=http://ai_service:5000
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai_service:
+        condition: service_started
+
+  frontend:
+    image: leez331/jobtracker-frontend:latest
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  ai_service:
+    image: leez331/jobtracker-ai:latest
+    restart: always
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JAVA_BACKEND_INTAKE_URL=http://backend:8080/api/internal/jobs/batch-intake
+      - JAVA_BACKEND_INTERNAL_JOBS_URL=http://backend:8080/api/internal/jobs
+      - INTERNAL_API_KEY=${APP_INTERNAL_API_KEY}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_NAME=jobtracker
+    ports:
+      - "5001:5000"
+
+  # ========================================================
+  # == 2. Official public services (don't add your name prefix!) ==
+  # ========================================================
+  db:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: jobtracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_local:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d jobtracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata_local:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: redis-server --save 60 1 --loglevel warning
+
+volumes:
+  pgdata_local:
+  redisdata_local:
+

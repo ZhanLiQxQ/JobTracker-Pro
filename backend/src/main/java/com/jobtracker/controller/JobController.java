@@ -101,5 +101,56 @@ public class JobController {
             return ResponseEntity.status(500).body("Error getting recommendations: " + e.getMessage());
         }
     }
+//
+//     @PostMapping("/recommend-file-async")
+//     public ResponseEntity<?> getRecommendationsAsync(@RequestParam("resume") MultipartFile file) {
+//         if (file.isEmpty()) {
+//             return ResponseEntity.badRequest().body("Please select a file to upload.");
+//         }
+//
+//         try {
+//             // 1. 生成全局唯一任务 ID
+//             String taskId = UUID.randomUUID().toString();
+//
+//             // 2. 将上传的 MultipartFile 暂存到服务器本地目录 (供 Python 端读取)
+//             // 生产环境中这里通常是上传到 AWS S3 或阿里云 OSS
+//             String tempDir = System.getProperty("java.io.tmpdir");
+//             File destFile = new File(tempDir + "/" + taskId + "_" + file.getOriginalFilename());
+//             file.transferTo(destFile);
+//
+//             // 3. 构建消息并发给 Kafka (Topic: resume-tasks)
+//             String message = String.format("{\"taskId\":\"%s\", \"filePath\":\"%s\"}", taskId, destFile.getAbsolutePath());
+//             kafkaTemplate.send("resume-tasks", message);
+//
+//             // 4. 不等 AI 算完，立刻给前端返回任务 ID
+//             Map<String, String> response = new HashMap<>();
+//             response.put("status", "PROCESSING");
+//             response.put("taskId", taskId);
+//             return ResponseEntity.accepted().body(response);
+//
+//         } catch (Exception e) {
+//             return ResponseEntity.status(500).body("Error processing file: " + e.getMessage());
+//         }
+//     }
+//
+//     @GetMapping("/recommend-result/{taskId}")
+//     public ResponseEntity<?> checkRecommendationResult(@PathVariable String taskId) {
+//         // 前端拿着 taskId 来查 Redis
+//         String redisKey = "recommend_result:" + taskId;
+//         String result = redisTemplate.opsForValue().get(redisKey);
+//
+//         if (result == null) {
+//             // 如果 Redis 里没有，说明 Python 还在算
+//             Map<String, String> response = new HashMap<>();
+//             response.put("status", "STILL_PROCESSING");
+//             return ResponseEntity.ok(response);
+//         }
+//
+//         // 算完了，直接返回存好的 JSON 数据
+//         return ResponseEntity.ok(result);
+//     }
+
+
 
 }
+
